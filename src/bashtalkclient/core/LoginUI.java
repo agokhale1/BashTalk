@@ -1,4 +1,4 @@
-package bashtalk.core;
+package bashtalkclient.core;
 
 import java.awt.*;
 import java.awt.event.*;
