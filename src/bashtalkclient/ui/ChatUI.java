@@ -25,48 +25,55 @@ public class ChatUI extends JFrame
 	private JTextArea terminal, input;
 	private JLabel tag;
 	
-	private BashTalkClient bash;
+	private BashTalkClient client;
 	
-	public ChatUI(String usr, BashTalkClient clnt)
+	public ChatUI(String usr, BashTalkClient client)
 	{
 		username = "#"+usr+": ";
-		bash = clnt;
+		this.client = client;
 		
+		//Calculates scaling unique to each resolution screen
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		int uiscale = (int) Math.round((gd.getDisplayMode().getHeight() / 100.0) + 0.5);
 		int scale = (gd.getDisplayMode().getHeight() + gd.getDisplayMode().getWidth()) / 200;
 		
 		window = this;
 		
+		//Sets up intial text and accessibility features
 		setTitle("BashTalk");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResolution(uiscale, scale);
 		setLocationRelativeTo(null);
 		
+		//Initializes the login components
 		initComponents(uiscale, scale);
 		setContentPane(contentPane);
 		
+		//Runs the KeyListener to check if Enter is pressed
 		try {
-			run();
+			keyPress();
 		}catch(Exception e) {
 			System.out.println("IO Error");
 		}
 		
 	}
 	
+	/*Sets the resolution of the UI*/
 	public void setResolution(int uiscale, int scale)
 	{
 		setSize(WIDTH*uiscale, HEIGHT*uiscale);
 		font = new Font("Consolas", Font.PLAIN, scale);
 	}
 	
+	/*Initializes all JComponents to displayed to the client*/
 	private void initComponents(int uiscale, int scale)
 	{
 		contentPane = new JPanel();
-		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
+		//Settings for the username tag
 		tag = new JLabel(username);
 		tag.setFont(font);
 		tag.setOpaque(true);
@@ -74,6 +81,7 @@ public class ChatUI extends JFrame
 		tag.setForeground(Color.GREEN);
 		tag.setBorder(BorderFactory.createLineBorder(Color.WHITE));;
 		
+		//Settings for the input text area
 		input = new JTextArea(2, 50);
 		input.setFont(font);
 		input.setBackground(Color.BLACK);
@@ -83,28 +91,31 @@ public class ChatUI extends JFrame
 		input.setWrapStyleWord(true);
 		//Insert custom caret code here
 
+		//Settings for the inputPanel that holds the username tag and the input textArea
 		inputPanel = new JPanel(new BorderLayout());
 		inputPanel.setOpaque(true);
 		inputPanel.setBackground(Color.black);
 		inputPanel.add(tag, BorderLayout.BEFORE_LINE_BEGINS);
 		inputPanel.add(new JScrollPane(input), BorderLayout.CENTER);
 		
-		JPanel tpan = new JPanel(new BorderLayout());
-		
+		//Settings for the terminal textArea
 		terminal = new JTextArea(29,131);
 		terminal.setFont(font);
 		terminal.setBackground(Color.BLUE);
 		terminal.setForeground(Color.GREEN);
 		terminal.setEditable(false);
 		
+		//Settings for the terminalPanel that holds the terminal textArea
+		JPanel tpan = new JPanel(new BorderLayout());
 		tpan.add(new JScrollPane(terminal), BorderLayout.CENTER);
 		
-		
+		//ContentPane holds the terminal panel and the inputPanel
 		contentPane.add(tpan, "Center");
 		contentPane.add(inputPanel, "South");
 		
 	}
 	
+	/*Appends the provided message to the terminal screen*/
 	public void addMessage(String msg)
 	{
 		terminal.setEditable(true);
@@ -112,6 +123,7 @@ public class ChatUI extends JFrame
 		terminal.setEditable(false);
 	}
 	
+	/*Clears the terminal screen*/
 	public void clear()
 	{
 		terminal.setEditable(true);
@@ -119,7 +131,8 @@ public class ChatUI extends JFrame
 	    terminal.setEditable(false);
 	}
 	
-	public void run() throws IOException
+	/*Checks if Enter is pressed and runs pre-set commands or broadcasts the message to other clients*/
+	public void keyPress() throws IOException
 	{
 		input.addKeyListener(new KeyListener() {
 			
@@ -130,14 +143,13 @@ public class ChatUI extends JFrame
 					input.append("\n");
 				else if (e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					//terminal.setEditable(true);
+					//Forwards the message to the server when enter is pressed
 					if(input.getText().equals("clear") || input.getText().equals("clr"))
             			clear();
-					if(input.getText().equals("exit") || input.getText().equals("quit") || input.getText().equals("bye"))
+					else if(input.getText().equals("exit") || input.getText().equals("quit") || input.getText().equals("bye"))
 						window.dispose();
-					//addMessage(input.getText());
-					//terminal.setEditable(false);
-					bash.sendMessage(username+input.getText());
+					else
+						client.sendMessage(username+input.getText());
 					input.setText(null);
 				}
 			}
@@ -153,16 +165,11 @@ public class ChatUI extends JFrame
             }
 		});
 	}
-	
-	public static void main(String args[]) throws Exception 
-    {
-        //ChatUI chat = new ChatUI("username");
-        //chat.setVisible(true);
-    }
+
 	
 	
 	
-	/*Creates a custom caret that gives a terminal feel!*/
+	/*Creates a custom caret that gives a terminal feel*/
     public class MyCaret extends DefaultCaret {
 
         private String mark = "<";

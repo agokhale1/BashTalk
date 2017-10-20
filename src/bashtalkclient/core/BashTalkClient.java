@@ -104,6 +104,7 @@ public class BashTalkClient {
     	out.println(msg);
     }
     
+    /*Listens to all message changes in the server and prints to local client*/
     public void listenMessage(ChatUI chatWindow) throws IOException
     {
     	// Listen for messages and append to display
@@ -125,6 +126,8 @@ public class BashTalkClient {
             chatWindow.addMessage(incoming);
         }
     }
+    
+    /*Runs the bash talk client system*/
     public static void main(String[] args) throws Exception {
 
         BashTalkClient client = new BashTalkClient();

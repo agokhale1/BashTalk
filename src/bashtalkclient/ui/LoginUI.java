@@ -39,6 +39,7 @@ public class LoginUI extends JFrame {
 		window = this;
 		this.client = client;
 		
+		//Sets up intial text and accessibility features
 		setTitle("Login");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResolution(uiscale, scale);
@@ -88,20 +89,18 @@ public class LoginUI extends JFrame {
 	/*Sets the resolution of the UI*/
 	private void setResolution(int uiscale, int scale)
 	{
-		
 		setSize(WIDTH * uiscale, HEIGHT * uiscale);
 		font = new Font("Consolas", Font.PLAIN, scale);
-		
 	}
 	
+	/*Set the UI to the correct font based on the scale*/
 	private void setUIHints(int scale)
 	{
-		
 		UIManager.put("OptionPane.messageFont", new Font("Consolas", Font.PLAIN, scale * 2));
 		UIManager.put("OptionPane.buttonFont", new Font("Consolas", Font.BOLD, scale * 2));
-		
 	}
 	
+	/*Initializes all JComponents to displayed to the client*/
 	private void initComponents()
 	{
 		
@@ -219,7 +218,7 @@ public class LoginUI extends JFrame {
 			
 		});
 		
-		//Creates the Confirm button and opens the ChatUI if validated
+		//Creates the Confirm button and connects to client onClick
 		confirm = new JButton("Confirm");
 		confirm.setFont(font);
 		confirm.addActionListener(new ActionListener() {
@@ -231,20 +230,16 @@ public class LoginUI extends JFrame {
 				{
 				    try {
 				        client.setCredentials(address.getText(), port.getText(), username.getText());
-				        client.connectToServer();
-				    
-				    } catch(Exception err) {
-				        
-				        System.out.println(err.toString());
-				        System.out.println("FUCK");
-				    
+				        client.connectToServer();		    
+				    } catch(Exception err) {        
+				        System.out.println(err.toString());	    
 				    }
 					window.dispose();
 				}
 			}
 		});
 		
-		//Creates the cancel button and closes the LoginUI
+		//Creates the cancel button and closes the LoginUI onClick
 		cancel = new JButton("Cancel");
 		cancel.setFont(font);		
 		cancel.addActionListener(new ActionListener() {
@@ -256,6 +251,7 @@ public class LoginUI extends JFrame {
 			}
 		});
 		
+		//Aligns the JComponents to their desired positions
 		usernameLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 		addressLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 		portLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -289,21 +285,5 @@ public class LoginUI extends JFrame {
 	private boolean validatePort(String port)
 	{
 		return !port.matches("[0-9]+");
-	}
-	
-	/*Runs the LoginUI*/
-	public static void main(String[] args)
-	{
-		
-		EventQueue.invokeLater(new Runnable() {
-			
-			public void run()
-			{
-				//LoginUI ui = new LoginUI();
-				//ui.setVisible(true);
-			}
-			
-		});
-		
 	}
 }
