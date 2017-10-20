@@ -43,6 +43,9 @@ public class BashTalkClient {
             
             // "Please enter a valid username: "
             String response = in.readLine();
+            
+            System.out.println(response);
+            
             chatWindow.addMessage(response);
             
             // Send username to server
@@ -50,6 +53,8 @@ public class BashTalkClient {
             
             // Wait for valid username response
             response = in.readLine();
+            
+            System.out.println(response);
             
             // Possibly set timeout?
             
@@ -67,6 +72,8 @@ public class BashTalkClient {
                     // Receive single message and append to terminal
                     response = in.readLine();
                     chatWindow.addMessage(response);
+                    
+                    System.out.println(response);
                     
                 }
                 
@@ -89,6 +96,8 @@ public class BashTalkClient {
                 
             }
         }
+        
+        System.out.println("Cleared cache");
 
         // Listen for messages and append to display
         while (true) {
@@ -96,18 +105,23 @@ public class BashTalkClient {
             // Wait for a message
             String incoming = in.readLine();
             
+            System.out.println("Cleared incoming");
+            System.out.println(incoming);
+            System.out.println(incoming == null);
+            
             // Server has closed socket
-            if (incoming == null) {
+            /*if (incoming == null) {
                 
                 // Clear terminal and exit
                 chatWindow.clear();
                 System.exit(0);
                 break;
                 
-            }
+            }*/
             
             // Append the message
             chatWindow.addMessage(incoming);
+            break;
             
         }
     }
