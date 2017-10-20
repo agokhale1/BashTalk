@@ -5,6 +5,8 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.util.regex.*;
 
+import bashtalkclient.core.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.BadLocationException;
@@ -23,9 +25,12 @@ public class ChatUI extends JFrame
 	private JTextArea terminal, input;
 	private JLabel tag;
 	
-	public ChatUI(String usr)
+	private BashTalkClient bash;
+	
+	public ChatUI(String usr, BashTalkClient clnt)
 	{
 		username = "#"+usr+": ";
+		bash = clnt;
 		
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		int uiscale = (int) Math.round((gd.getDisplayMode().getHeight() / 100.0) + 0.5);
@@ -102,12 +107,16 @@ public class ChatUI extends JFrame
 	
 	public void addMessage(String msg)
 	{
+		terminal.setEditable(true);
 		terminal.append(msg+"\n");
+		terminal.setEditable(false);
 	}
 	
 	public void clear()
 	{
+		terminal.setEditable(true);
 	    terminal.setText("");
+	    terminal.setEditable(false);
 	}
 	
 	public void run() throws IOException
@@ -121,13 +130,14 @@ public class ChatUI extends JFrame
 					input.append("\n");
 				else if (e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					terminal.setEditable(true);
+					//terminal.setEditable(true);
 					if(input.getText().equals("clear") || input.getText().equals("clr"))
-            			terminal.setText("");
+            			clear();
 					if(input.getText().equals("exit") || input.getText().equals("quit") || input.getText().equals("bye"))
 						window.dispose();
-					addMessage(input.getText());
-					terminal.setEditable(false);
+					//addMessage(input.getText());
+					//terminal.setEditable(false);
+					bash.sendMessage(username+input.getText());
 					input.setText(null);
 				}
 			}
@@ -146,8 +156,8 @@ public class ChatUI extends JFrame
 	
 	public static void main(String args[]) throws Exception 
     {
-        ChatUI chat = new ChatUI("username");
-        chat.setVisible(true);
+        //ChatUI chat = new ChatUI("username");
+        //chat.setVisible(true);
     }
 	
 	

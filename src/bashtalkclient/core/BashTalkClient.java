@@ -35,7 +35,7 @@ public class BashTalkClient {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
         
-        ChatUI chatWindow = new ChatUI(this.username);
+        ChatUI chatWindow = new ChatUI(this.username, this);
         chatWindow.setVisible(true);
         
         // Checks for username validity and prints cached message history
@@ -98,6 +98,12 @@ public class BashTalkClient {
         }.start();
     }
 
+    /*Sends the message to the server to be broadcasted to every client*/
+    public void sendMessage(String msg)
+    {
+    	out.println(msg);
+    }
+    
     public void listenMessage(ChatUI chatWindow) throws IOException
     {
     	// Listen for messages and append to display
