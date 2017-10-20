@@ -102,7 +102,12 @@ public class ChatUI extends JFrame
 	
 	public void addMessage(String msg)
 	{
-		terminal.append(username+msg+"\n");
+		terminal.append(msg+"\n");
+	}
+	
+	public void clear()
+	{
+	    terminal.setText("");
 	}
 	
 	public void run() throws IOException
@@ -141,8 +146,8 @@ public class ChatUI extends JFrame
 	
 	public static void main(String args[]) throws Exception 
     {
-        ChatUI client = new ChatUI("username");
-        client.setVisible(true);
+        ChatUI chat = new ChatUI("username");
+        chat.setVisible(true);
     }
 	
 	
