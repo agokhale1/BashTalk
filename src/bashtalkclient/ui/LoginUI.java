@@ -230,8 +230,8 @@ public class LoginUI extends JFrame {
 				if(validateIP(address.getText()) && validateUsername(username.getText()) && !validatePort(port.getText()))
 				{
 				    try {
-				        
-				        client.connectToServer(address.getText(), port.getText(), username.getText());
+				        client.setCredentials(address.getText(), port.getText(), username.getText());
+				        client.connectToServer();
 				    
 				    } catch(Exception err) {
 				        

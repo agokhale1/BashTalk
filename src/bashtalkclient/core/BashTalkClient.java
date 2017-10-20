@@ -20,14 +20,16 @@ public class BashTalkClient {
     private BufferedReader in;
     private PrintWriter out;
 
-    public void connectToServer(String address, String port, String username) throws IOException 
+    public void setCredentials(String address, String port, String username)
     {
-
     	// Set the server address, port, and username
         this.host = address;
         this.port = Integer.parseInt(port);
         this.username = username;
-        
+    }
+    
+    public void connectToServer() throws IOException 
+    {
         // Make connection and initialize streams
         socket = new Socket(this.host, this.port); // TODO: Catch socket fail!
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -36,16 +38,11 @@ public class BashTalkClient {
         ChatUI chatWindow = new ChatUI(this.username);
         chatWindow.setVisible(true);
         
-        System.out.println("I'm here");
-        chatWindow.addMessage("Helllo");
-        
-        // Prompt for username until server validates
-        while (true) {
-            
+        // Checks for username validity and prints cached message history
+        while (true) 
+        {
             // "Please enter a valid username: "
             String response = in.readLine();
-            
-            System.out.println(response);
             
             chatWindow.addMessage(response);
             
@@ -55,34 +52,26 @@ public class BashTalkClient {
             // Wait for valid username response
             response = in.readLine();
             
-            System.out.println(response);
-            
-            // Possibly set timeout?
-            
             // Username has been accepted and server join is successful
-            if (response.equals("Username approved. Welcome.")) {
-                
+            if (response.equals("Username approved. Welcome.")) 
+            {
                 // Clear terminal
                 chatWindow.clear();
                 chatWindow.addMessage(response);
                 chatWindow.addMessage("");
                 
                 // Receive all cached messages
-                while (!response.equals("-- End of Message History --")) {
-                    
+                while (!response.equals("-- End of Message History --")) 
+                { 
                     // Receive single message and append to terminal
                     response = in.readLine();
                     chatWindow.addMessage(response);
-                    
-                    System.out.println(response);
-                    
                 }
-                
                 // Break out of username error trap
                 break;
                 
-            } else {
-                
+            }else {
+            	
                 // Show error from server
                 JOptionPane.showMessageDialog(chatWindow, response);
                 
@@ -91,20 +80,20 @@ public class BashTalkClient {
                 this.username = JOptionPane.showInputDialog(chatWindow, "Enter a username: ");
                 
                 // User hit cancel
-                if (this.username == null) {
+                if (this.username == null)
                     System.exit(0);
-                }               
-                
             }
         }
         
-        System.out.println("Cleared cache");
-
+        //Generates a new thread so that the client can simultaneously listen to incoming messages
         new Thread() {
-        	public void run() {
+        	public void run() 
+        	{
         		try{
         			listenMessage(chatWindow);
-        		}catch(Exception e) {}
+        		}catch(Exception e) {
+        			System.out.println("Error listening to messages!");
+        		}
         	}
         }.start();
     }
@@ -112,28 +101,22 @@ public class BashTalkClient {
     public void listenMessage(ChatUI chatWindow) throws IOException
     {
     	// Listen for messages and append to display
-        while (true) {
-            
+        while (true) 
+        {    
             // Wait for a message
             String incoming = in.readLine();
             
-            System.out.println("Cleared incoming");
-            System.out.println(incoming);
-            
             // Server has closed socket
-            /*if (incoming == null) {
-                
+            if (incoming == null) 
+            {    
                 // Clear terminal and exit
                 chatWindow.clear();
                 System.exit(0);
                 break;
-                
-            }*/
+            }
             
-            // Append the message
+            // Append the message to the terminal
             chatWindow.addMessage(incoming);
-            
-            
         }
     }
     public static void main(String[] args) throws Exception {
