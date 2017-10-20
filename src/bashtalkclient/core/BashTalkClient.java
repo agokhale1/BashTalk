@@ -20,9 +20,10 @@ public class BashTalkClient {
     private BufferedReader in;
     private PrintWriter out;
 
-    public void connectToServer(String address, String port, String username) throws IOException {
+    public void connectToServer(String address, String port, String username) throws IOException 
+    {
 
-        // Set the server address, port, and username
+    	// Set the server address, port, and username
         this.host = address;
         this.port = Integer.parseInt(port);
         this.username = username;
@@ -99,7 +100,18 @@ public class BashTalkClient {
         
         System.out.println("Cleared cache");
 
-        // Listen for messages and append to display
+        new Thread() {
+        	public void run() {
+        		try{
+        			listenMessage(chatWindow);
+        		}catch(Exception e) {}
+        	}
+        }.start();
+    }
+
+    public void listenMessage(ChatUI chatWindow) throws IOException
+    {
+    	// Listen for messages and append to display
         while (true) {
             
             // Wait for a message
@@ -107,7 +119,6 @@ public class BashTalkClient {
             
             System.out.println("Cleared incoming");
             System.out.println(incoming);
-            System.out.println(incoming == null);
             
             // Server has closed socket
             /*if (incoming == null) {
@@ -121,11 +132,10 @@ public class BashTalkClient {
             
             // Append the message
             chatWindow.addMessage(incoming);
-            break;
+            
             
         }
     }
-
     public static void main(String[] args) throws Exception {
 
         BashTalkClient client = new BashTalkClient();
