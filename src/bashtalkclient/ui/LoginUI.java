@@ -1,5 +1,7 @@
 package bashtalkclient.ui;
 
+import bashtalkclient.core.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.regex.*;
@@ -23,7 +25,9 @@ public class LoginUI extends JFrame {
 	private JTextField username, address, port;
 	private JButton confirm, cancel;
 	
-	public LoginUI()
+	private BashTalkClient client;
+	
+	public LoginUI(BashTalkClient client)
 	{
 		//Calculates scaling unique to each resolution screen
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -31,7 +35,7 @@ public class LoginUI extends JFrame {
 		int scale = (gd.getDisplayMode().getHeight() + gd.getDisplayMode().getWidth()) / 200;
 		
 		window = this;
-		
+		this.client = client;
 		
 		setTitle("Login");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -223,8 +227,16 @@ public class LoginUI extends JFrame {
 			{
 				if(validateIP(address.getText()) && validateUsername(username.getText()) && !validatePort(port.getText()))
 				{
-					ChatUI client = new ChatUI(username.getText());
-					client.setVisible(true);
+				    try {
+				        
+				        client.connectToServer(address.getText(), port.getText(), username.getText());
+				    
+				    } catch(Exception err) {
+				        
+				        System.out.println(err.toString());
+				        System.out.println("FUCK");
+				    
+				    }
 					window.dispose();
 				}
 			}
@@ -285,8 +297,8 @@ public class LoginUI extends JFrame {
 			
 			public void run()
 			{
-				LoginUI ui = new LoginUI();
-				ui.setVisible(true);
+				//LoginUI ui = new LoginUI();
+				//ui.setVisible(true);
 			}
 			
 		});
