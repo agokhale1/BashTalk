@@ -25,12 +25,13 @@ public class LoginUI extends JFrame {
 	
 	public LoginUI()
 	{
-		
+		//Calculates scaling unique to each resolution screen
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		int uiscale = (int) Math.round((gd.getDisplayMode().getHeight() / 100.0) + 0.5);
 		int scale = (gd.getDisplayMode().getHeight() + gd.getDisplayMode().getWidth()) / 200;
 		
 		window = this;
+		
 		
 		setTitle("Login");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,6 +40,7 @@ public class LoginUI extends JFrame {
 		setResizable(false);
 		setLocationRelativeTo(null);
 		
+		//Listens for escape key to quit the login
 		KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		kfm.addKeyEventDispatcher(new KeyEventDispatcher() {
 			
@@ -50,12 +52,13 @@ public class LoginUI extends JFrame {
 					dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 				return false;
 			}
-			
 		});
 		
+		//Initializes the login components
 		initComponents();
 		setContentPane(contentPane);
 		
+		//Aligns all the JComponents
 		contentPane.add(Box.createVerticalStrut(scale * 3));
 		contentPane.add(usernameLbl);
 		contentPane.add(username);
@@ -76,6 +79,7 @@ public class LoginUI extends JFrame {
 		
 	}
 	
+	/*Sets the resolution of the UI*/
 	private void setResolution(int uiscale, int scale)
 	{
 		
@@ -99,8 +103,10 @@ public class LoginUI extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
+		//Creates a panel for all buttons
 		btnPane = new JPanel();
 		
+		//Creates the labels for the username, ip and port
 		usernameLbl = new JLabel("Enter a Username");
 		usernameLbl.setFont(font);
 		addressLbl = new JLabel("Enter an IP Address");
@@ -108,6 +114,7 @@ public class LoginUI extends JFrame {
 		portLbl = new JLabel("Enter a Port");
 		portLbl.setFont(font);
 		
+		//Creates the text field for username input and validates the username
 		username = new JTextField(26);
 		username.setFont(font);
 		username.addFocusListener(new FocusListener() {
@@ -140,6 +147,8 @@ public class LoginUI extends JFrame {
 			}
 			
 		});
+		
+		//Creates the text field for the ip address and validates ip address
 		address = new JTextField(26);
 		address.setFont(font);
 		address.addFocusListener(new FocusListener() {
@@ -157,10 +166,7 @@ public class LoginUI extends JFrame {
 						address.setForeground(Color.RED);
 					}
 					else
-					{
 						address.setForeground(Color.GREEN);
-					}
-					
 				}
 				
 			}
@@ -172,6 +178,8 @@ public class LoginUI extends JFrame {
 			}
 			
 		});
+		
+		//Creates a text field for the port number and validates the port number
 		port = new JTextField(5);
 		port.setFont(font);
 		port.addFocusListener(new FocusListener() {
@@ -205,10 +213,34 @@ public class LoginUI extends JFrame {
 			
 		});
 		
+		//Creates the Confirm button and opens the ChatUI if validated
 		confirm = new JButton("Confirm");
 		confirm.setFont(font);
+		confirm.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				if(validateIP(address.getText()) && validateUsername(username.getText()) && !validatePort(port.getText()))
+				{
+					ChatUI client = new ChatUI(username.getText());
+					client.setVisible(true);
+					window.dispose();
+				}
+			}
+		});
+		
+		//Creates the cancel button and closes the LoginUI
 		cancel = new JButton("Cancel");
 		cancel.setFont(font);		
+		cancel.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				window.dispose();
+			}
+		});
 		
 		usernameLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 		addressLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -227,21 +259,25 @@ public class LoginUI extends JFrame {
 		
 	}
 	
+	/*Validates the IP Address to its correct format*/
 	private boolean validateIP(String ip)
 	{
 		return PATTERN.matcher(ip).matches();
 	}
 	
+	/*Validates username excluding all special characters*/
 	private boolean validateUsername(String username)
 	{
 		return username.matches("^[a-zA-Z0-9]*$");
 	}
 	
+	/*Validates the port number by accepting only numbers*/
 	private boolean validatePort(String port)
 	{
 		return !port.matches("[0-9]+");
 	}
 	
+	/*Runs the LoginUI*/
 	public static void main(String[] args)
 	{
 		
