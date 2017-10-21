@@ -80,17 +80,21 @@ public class BashTalkServer {
                 broadcastMsg(username + " has joined the server.");
 
                 // Wait for messages from client
-                while (true) {
+                while (true) 
+                {
+                	// Gets the message that is sent to the server
                     String msg = in.readLine();
 
-                    if (msg.equals("/exit")) {
+                    if (msg.indexOf("/exit") != -1) //exit command exits the client 
+                    {
                         clients.remove(this);
                         this.close(true);
-                        break;
-                    } else if (msg.equals("/clear_cache")) {
+                        break;    
+                    } else if (msg.indexOf("/clear_cache") != -1) //clear_cache clears all the previous cache history
+                    {
                         messageCache.clear();
                         continue;
-                    }
+                    } 
                     
                     broadcastMsg(msg);
                     messageCache.add(msg);
