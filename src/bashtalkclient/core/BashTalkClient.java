@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.JOptionPane;
 
@@ -94,7 +96,10 @@ public class BashTalkClient {
 
     /* Sends the message to the server to be broadcasted to every client */
     public void sendMessage(String msg) {
-        out.println(msg);
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+    	LocalDateTime now = LocalDateTime.now();
+    	System.out.println(dtf.format(now)); //2016/11/16 12:08:43
+        out.println("[" + dtf.format(now) + "] " + msg);
     }
 
     /* Listens to all message changes in the server and prints to local client */
