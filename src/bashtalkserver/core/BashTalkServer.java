@@ -72,8 +72,8 @@ public class BashTalkServer {
                     
                     // Check if username is already online
                     boolean valid = true;
-                    for (int i = 0; i < clients.size(); i++) {
-                        if (clients.get(i).getUsername() != null && clients.get(i).getUsername().equals(tempUsername))
+                    for (Client c : clients) {
+                        if (c.getUsername() != null && c.getUsername().equals(tempUsername))
                         {
                             valid = false;
                             break;
@@ -120,17 +120,30 @@ public class BashTalkServer {
                         continue;
                     } else if(msg.indexOf("/pmsg") != -1)
                     {
+                    	// [time] <usr> /cmd <usr1> <msg>
                     	String[] syntax = msg.split(" ");
-                    	System.out.println("I'm here"+this.username);
-                    	if(this.username.equals(syntax[1]))
+                    	if(syntax.length < 5)
                     	{
-                    		msg = String.join("", syntax);
-                    		int k = msg.indexOf(" ", msg.indexOf(" ")+1);
-                    		msg = msg.substring(k);
-                    		System.out.println("It equals "+msg);
-                    		this.directMsg(msg);
-                    		break;
+                    		this.directMsg("\nUsage: /pmsg <user> <message>");
+                    		continue;
                     	}
+                    	
+                    	for(Client c : clients)
+                    	{
+                    		if(c.getUsername().equals(syntax[3]))
+                    		{
+                    			msg="";
+                    			msg += syntax[0] + " " + syntax[1] + "@<" + syntax[3] + "> ";
+                    			for(int i = 4; i<syntax.length;i++)
+                    			{
+                    				msg += syntax[i] + " ";
+                    			}
+                        		c.directMsg("Private: " + msg);
+                        		this.directMsg("Private: " + msg);
+                        		break;
+                    		}
+                    	}
+                    	continue;
                     }
                     
                     broadcastMsg(msg);
