@@ -115,7 +115,7 @@ public class BashTalkServer {
                     {
                         clients.remove(this);
                         this.close(true);
-                        break;    
+                        break;
                     } else if (msg.indexOf("/clear_cache") != -1) //clear_cache clears all the previous cache history
                     {
                         messageCache.clear();
@@ -153,8 +153,6 @@ public class BashTalkServer {
                 }
             } catch (IOException e) {
                 log("Error handling client #" + this.clientNumber + ": " + e);
-            } finally {
-                this.close(true);
             }
         }
 
@@ -169,6 +167,7 @@ public class BashTalkServer {
                 this.in.close();
                 this.out.close();
                 this.socket.close();
+                log(this.username + " has left the server.");
                 if (notify)
                     broadcastMsg(this.username + " has left the server.");
             } catch (Exception e) {
