@@ -20,7 +20,8 @@ public class BashTalkServer {
         final String HOST = getIp();
         int clientNumber = 0;
 
-        System.out.print("\033[H\033[2J"); // "clear" command
+        // Clear Linux terminal screen
+        System.out.print("\033[H\033[2J");
         System.out.println("-- BashTalk Server " + HOST + "[" + PORT + "] --");
 
         ServerSocket listener = new ServerSocket(PORT);
@@ -30,9 +31,10 @@ public class BashTalkServer {
                     clients.add(new Client(clientNumber++, listener.accept()));
                     clients.get(clients.size() - 1).start();
                 } else {
-                    Client temp = new Client(clientNumber + 1, listener.accept());
-                    temp.directMsg("Maximum number of clients reached.");
-                    temp.close(false);
+                    Socket socket = listener.accept();
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    out.println("Maximum number of clients reached.");
+                    // Client closes self
                 }
             }
         } finally {
