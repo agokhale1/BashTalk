@@ -177,6 +177,20 @@ public class LoginUI extends JFrame {
         // Creates a text field for the port number and validates the port number
         port = new JTextField(5);
         port.setFont(font);
+        port.addKeyListener(new KeyListener() {
+        	
+        	@Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && validateIP(address.getText()) && validateUsername(username.getText()) && !validatePort(port.getText())) 
+                	createConnection();
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
         port.addFocusListener(new FocusListener() {
 
             @Override
@@ -191,7 +205,6 @@ public class LoginUI extends JFrame {
                     } else {
                         port.setForeground(Color.GREEN);
                     }
-
                 }
 
             }
@@ -210,16 +223,8 @@ public class LoginUI extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (validateIP(address.getText()) && validateUsername(username.getText())
-                        && !validatePort(port.getText())) {
-                    try {
-                        client.setCredentials(address.getText(), port.getText(), username.getText());
-                        client.connectToServer();
-                        window.dispose();
-                    } catch (Exception err) {
-                        JOptionPane.showMessageDialog(window, err.toString());
-                    }
-                }
+                if (validateIP(address.getText()) && validateUsername(username.getText()) && !validatePort(port.getText())) 
+                    createConnection();
             }
         });
 
@@ -250,6 +255,25 @@ public class LoginUI extends JFrame {
 
         cancel.setPreferredSize(confirm.getPreferredSize());
 
+    }
+    
+    /*Attempts the connection between the client and server else throws the */
+    public void createConnection()
+    {
+    	try {
+            client.setCredentials(address.getText(), port.getText(), username.getText());
+            client.connectToServer();
+            window.dispose();
+        } catch (Exception err) {
+        	String message = "";
+        	if(err.getMessage().indexOf("refused") != -1)
+        		message = "Connection refused: Please try again later!";
+        	else if(err.getMessage().indexOf("reset") != -1)
+        		message = "Connection reset: The server closed the connection!";
+        	else
+        		message = "Connection timed out: Please enter the correct IP and Port";
+        	JOptionPane.showMessageDialog(window, message, "Connection Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /* Validates the IP Address to its correct format */
