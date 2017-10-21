@@ -40,6 +40,7 @@ public class BashTalkClient {
         // Checks for username validity and prints cached message history
         while (true) {
             
+            // Clear screen between username prompts
             chatWindow.clear();
             
             // "Please enter a valid username: "
