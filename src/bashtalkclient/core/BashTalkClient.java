@@ -101,7 +101,7 @@ public class BashTalkClient {
     public void sendMessage(String msg) {
     	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
     	LocalDateTime now = LocalDateTime.now();
-    	System.out.println(dtf.format(now)); //2016/11/16 12:08:43
+
         out.println("[" + dtf.format(now) + "] " + msg);
     }
 
