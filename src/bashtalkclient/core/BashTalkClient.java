@@ -63,6 +63,9 @@ public class BashTalkClient {
                     response = in.readLine();
                     chatWindow.addMessage(response);
                 }
+                
+                chatWindow.addMessage("");
+                
                 // Break out of username error trap
                 break;
 
