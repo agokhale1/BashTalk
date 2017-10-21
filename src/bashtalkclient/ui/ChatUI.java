@@ -69,6 +69,10 @@ public class ChatUI extends JFrame
 	/*Initializes all JComponents to displayed to the client*/
 	private void initComponents(int uiscale, int scale)
 	{
+		//Creates the program icon and sets it to the JFrame
+		ImageIcon img = new ImageIcon("src/bashTalk.png");
+		this.setIconImage(img.getImage());
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));

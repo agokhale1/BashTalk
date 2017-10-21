@@ -103,6 +103,9 @@ public class LoginUI extends JFrame {
 	/*Initializes all JComponents to displayed to the client*/
 	private void initComponents()
 	{
+		//Creates the program icon and sets it to the JFrame
+		ImageIcon img = new ImageIcon("src/bashTalk.png");
+		this.setIconImage(img.getImage());
 		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
