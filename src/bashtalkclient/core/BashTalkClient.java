@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,8 +30,12 @@ public class BashTalkClient {
     }
 
     public void connectToServer() throws IOException {
-        // Make connection and initialize streams
-        socket = new Socket(this.host, this.port); // TODO: Catch socket fail!
+        
+        // Create socket and set timeout to 2.5 seconds
+        socket = new Socket();
+        socket.connect(new InetSocketAddress(this.host, this.port), 2500);
+        
+        // Create buffers for sending and receiving data from the server
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
 
