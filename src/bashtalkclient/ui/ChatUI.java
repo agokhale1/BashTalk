@@ -93,7 +93,7 @@ public class ChatUI extends JFrame
 		input.setCaretColor(Color.WHITE);
 		input.setLineWrap(true);
 		input.setWrapStyleWord(true);
-		//Insert custom caret code here
+		input.setCaret(new MyCaret());
 
 		//Settings for the inputPanel that holds the username tag and the input textArea
 		inputPanel = new JPanel(new BorderLayout());
@@ -182,7 +182,7 @@ public class ChatUI extends JFrame
         public MyCaret() {
             setBlinkRate(500);
             try {
-            	ImageIcon icon = new ImageIcon("C:\\Users\\Neel\\Documents\\NetBeansProjects\\ChatGUI\\src\\cursor.png");
+            	ImageIcon icon = new ImageIcon("src/cursor.png");
             	img = icon.getImage();
             }catch(Exception e) {}
         }
@@ -229,9 +229,7 @@ public class ChatUI extends JFrame
 
             if (isVisible()) {
                 FontMetrics fm = comp.getFontMetrics(comp.getFont());
-                //g.setColor(comp.getCaretColor());
-                //g.drawString(mark, x, y + fm.getAscent());
-               // g.drawImage(img, x, y+5,tag.getFont().getSize()/2,tag.getFont().getSize(),Color.white, this);
+                g.drawImage(img, x, y+5,tag.getFont().getSize()/2,tag.getFont().getSize(),Color.white, window);
             }
         }
 
