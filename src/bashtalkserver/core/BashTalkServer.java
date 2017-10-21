@@ -52,6 +52,10 @@ public class BashTalkServer {
             this.clientNumber = clientNumber;
             this.socket = socket;
         }
+        
+        public String getUsername() {
+            return this.username;
+        }
 
         public void run() {
             try {
@@ -62,13 +66,30 @@ public class BashTalkServer {
                 // Handle username
                 while (true) {
                     this.directMsg("Please enter a valid username: ");
-                    String username = in.readLine();
+                    String tempUsername = in.readLine();
+                    
+                    // Check if username is already online
+                    boolean valid = true;
+                    for (int i = 0; i < clients.size(); i++) {
+                        if (clients.get(i).getUsername() != null && clients.get(i).getUsername().equals(tempUsername))
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
 
-                    if (username.length() > 0) {
+                    // If the username is valid
+                    if (valid && tempUsername.length() > 0) {
+                        
                         this.directMsg("Username approved. Welcome.");
-                        log(username + " has joined the server as client #" + this.clientNumber + ".");
-                        this.username = username;
+                        log(tempUsername + " has joined the server as client #" + this.clientNumber + ".");
+                        this.username = tempUsername;
+                        
+                        // Break out of error trap
                         break;
+                        
+                    } else {
+                        this.directMsg("Username already online. Please try again.");
                     }
                 }
 
