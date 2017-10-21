@@ -83,16 +83,15 @@ public class BashTalkServer {
                 while (true) {
                     String msg = in.readLine();
 
-                    if (msg.indexOf("$$exit$$") != -1) {
+                    if (msg.equals("/exit")) {
                         clients.remove(this);
                         this.close(true);
                         break;
-                    } else if (msg.indexOf("$$clear$$") != -1) {
+                    } else if (msg.equals("/clear_cache")) {
                         messageCache.clear();
-                        broadcastMsg(msg);
                         continue;
                     }
-
+                    
                     broadcastMsg(msg);
                     messageCache.add(msg);
                 }
