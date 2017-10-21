@@ -48,9 +48,20 @@ public class BashTalkClient {
             // Clear screen between username prompts
             chatWindow.clear();
             
-            // "Please enter a valid username: "
+            // Username prompt or max clients reached warning
             String response = in.readLine();
-
+            
+            // Server cannot accept any more clients
+            if (response.equals("Maximum number of clients reached.")) 
+            {
+                JOptionPane.showMessageDialog(chatWindow, "Maximum number of clients reached. Please try again later.", "Server Full", JOptionPane.WARNING_MESSAGE);
+                in.close();
+                out.close();
+                socket.close();
+                System.exit(0);
+            }
+            
+            // Receive username instructions
             chatWindow.addMessage(response);
 
             // Send username to server
