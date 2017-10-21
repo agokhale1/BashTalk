@@ -39,6 +39,9 @@ public class BashTalkClient {
 
         // Checks for username validity and prints cached message history
         while (true) {
+            
+            chatWindow.clear();
+            
             // "Please enter a valid username: "
             String response = in.readLine();
 
@@ -101,7 +104,7 @@ public class BashTalkClient {
     public void sendMessage(String msg) {
     	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
     	LocalDateTime now = LocalDateTime.now();
-    	System.out.println(dtf.format(now)); //2016/11/16 12:08:43
+
         out.println("[" + dtf.format(now) + "] " + msg);
     }
 
