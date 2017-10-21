@@ -79,7 +79,11 @@ public class BashTalkServer {
                             break;
                         }
                     }
+<<<<<<< HEAD
 
+=======
+                    
+>>>>>>> 7d452af265b6b833dd7789a7ff4893432648a2da
                     // If the username is valid
                     if (valid && tempUsername.length() > 0) {
                         
