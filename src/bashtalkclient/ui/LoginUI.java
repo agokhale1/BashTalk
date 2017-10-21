@@ -215,10 +215,10 @@ public class LoginUI extends JFrame {
                     try {
                         client.setCredentials(address.getText(), port.getText(), username.getText());
                         client.connectToServer();
+                        window.dispose();
                     } catch (Exception err) {
-                        System.out.println(err.toString());
+                        JOptionPane.showMessageDialog(window, err.toString());
                     }
-                    window.dispose();
                 }
             }
         });

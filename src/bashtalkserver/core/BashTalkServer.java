@@ -57,14 +57,16 @@ public class BashTalkServer {
             return this.username;
         }
 
-        public void run() {
+        public void run() 
+        {
             try {
                 // Initialize streams
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
 
                 // Handle username
-                while (true) {
+                while (true) 
+                {
                     this.directMsg("Please enter a valid username: ");
                     String tempUsername = in.readLine();
                     
@@ -94,23 +96,41 @@ public class BashTalkServer {
                 }
 
                 // Send cached messages
-                for (String msg : messageCache) {
+                for (String msg : messageCache) 
+                {
                     this.directMsg(msg);
                 }
                 this.directMsg("-- End of Message History --");
                 broadcastMsg(username + " has joined the server.");
 
                 // Wait for messages from client
-                while (true) {
+                while (true) 
+                {
+                	// Gets the message that is sent to the server
                     String msg = in.readLine();
 
-                    if (msg.equals("/exit")) {
+                    if (msg.indexOf("/exit") != -1) //exit command exits the client 
+                    {
                         clients.remove(this);
                         this.close(true);
-                        break;
-                    } else if (msg.equals("/clear_cache")) {
+                        break;    
+                    } else if (msg.indexOf("/clear_cache") != -1) //clear_cache clears all the previous cache history
+                    {
                         messageCache.clear();
                         continue;
+                    } else if(msg.indexOf("/pmsg") != -1)
+                    {
+                    	String[] syntax = msg.split(" ");
+                    	System.out.println("I'm here"+this.username);
+                    	if(this.username.equals(syntax[1]))
+                    	{
+                    		msg = String.join("", syntax);
+                    		int k = msg.indexOf(" ", msg.indexOf(" ")+1);
+                    		msg = msg.substring(k);
+                    		System.out.println("It equals "+msg);
+                    		this.directMsg(msg);
+                    		break;
+                    	}
                     }
                     
                     broadcastMsg(msg);
@@ -123,30 +143,34 @@ public class BashTalkServer {
             }
         }
 
-        public void directMsg(String msg) {
+        public void directMsg(String msg) 
+        {
             this.out.println(msg);
         }
 
-        public void close(boolean notify) {
+        public void close(boolean notify) 
+        {
             try {
                 this.in.close();
                 this.out.close();
                 this.socket.close();
-                if (notify) {
+                if (notify)
                     broadcastMsg(this.username + " has left the server.");
-                }
             } catch (Exception e) {
                 log("Error closing socket #" + this.clientNumber + ": " + e);
             }
         }
 
-        private void log(String msg) {
+        private void log(String msg) 
+        {
             System.out.println(msg);
         }
     }
 
-    private static void broadcastMsg(String msg) {
-        for (Client client : clients) {
+    private static void broadcastMsg(String msg) 
+    {
+        for (Client client : clients) 
+        {
             try {
                 client.directMsg(msg);
             } catch (Exception e) {
@@ -155,14 +179,16 @@ public class BashTalkServer {
         }
     }
 
-    public static String getIp() throws Exception {
+    public static String getIp() throws Exception 
+    {
         URL AWSCheck = new URL("http://checkip.amazonaws.com");
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(AWSCheck.openStream()));
             return in.readLine();
         } finally {
-            if (in != null) {
+            if (in != null) 
+            {
                 try {
                     in.close();
                 } catch (IOException e) {
