@@ -28,7 +28,7 @@ public class ChatUI extends JFrame {
     private BashTalkClient client;
 
     public ChatUI(String usr, BashTalkClient client) {
-        username = "#" + usr + ": ";
+        username = "<" + usr + "> ";
         this.client = client;
 
         // Calculates scaling unique to each resolution screen
@@ -145,12 +145,9 @@ public class ChatUI extends JFrame {
                     input.append("\n");
                 else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     // Forwards the message to the server when enter is pressed
-                    if (input.getText().equals("clear") || input.getText().equals("clr"))
+                    if (input.getText().equals("/clear"))
                         clear();
-                    else if (input.getText().equals("exit") || input.getText().equals("quit")
-                            || input.getText().equals("bye"))
-                        window.dispose();
-                    else
+                    else 
                         client.sendMessage(username + input.getText());
                     input.setText(null);
                 }
