@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -22,12 +23,15 @@ public class BashTalkServer {
     private static final int MAX_CACHE_SIZE = 100;
 
     public static void main(String[] args) throws Exception {
-        final String HOST = getIp();
+        final String HOST = getExternalIp();
         int clientNumber = 0;
 
         // Clear Linux terminal screen
         System.out.print("\033[H\033[2J");
-        System.out.println("-- BashTalk Server " + HOST + "[" + PORT + "] --");
+        System.out.println("-- BashTalk Server --");
+        System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
+        System.out.println("External: "+ HOST + "[" + PORT + "]");
+        System.out.println("");
 
         ServerSocket listener = new ServerSocket(PORT);
         try {
@@ -378,8 +382,22 @@ public class BashTalkServer {
         return fSegments;
     }
     
+    /* Get the local IP of the host device */
+    public static String getLocalIp()
+    {
+        try {
+            InetAddress ipAddr = InetAddress.getLocalHost();
+            return ipAddr.getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+            
+            return null; // To make Eclipse shutup
+        }
+    }
+    
     /* Get the external IP of the host device. */
-    public static String getIp() throws Exception 
+    public static String getExternalIp() throws Exception 
     {
         URL AWSCheck = new URL("http://checkip.amazonaws.com");
         BufferedReader in = null;
@@ -396,6 +414,5 @@ public class BashTalkServer {
                 }
             }
         }
-    }
-    
+    } 
 }
