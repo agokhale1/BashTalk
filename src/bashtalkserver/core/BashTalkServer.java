@@ -5,9 +5,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class BashTalkServer {
 
@@ -111,40 +116,80 @@ public class BashTalkServer {
                 	// Gets the message that is sent to the server
                     String msg = in.readLine();
 
-                    if (msg.indexOf("/exit") != -1) //exit command exits the client 
-                    {
+                    if (msg.indexOf("/exit") != -1) {
+                        
+                        // Close the connection for this client
+                        
                         clients.remove(this);
                         this.close(true);
                         break;
-                    } else if (msg.indexOf("/clear_cache") != -1) //clear_cache clears all the previous cache history
-                    {
-                        messageCache.clear();
-                        continue;
-                    } else if(msg.indexOf("/pmsg") != -1)
-                    {
-                    	// [time] <usr> /cmd <usr1> <msg>
-                    	String[] syntax = msg.split(" ");
-                    	if(syntax.length < 5)
+                        
+                        
+                    } else if (msg.indexOf("/clear_cache") != -1) {
+                        
+                        // Clear the server's cache of stored messages (requires password)
+                        // Messages on user's screens are preserved for now
+                        
+                        // Prompt for user password
+                        this.serverMsg("Enter password: ");
+                        
+                        // Wait for user reply and extract password
+                        String[] segments = extractMessageSegments(in.readLine(), 0);
+                        String password = segments[2];
+                        
+                        // Hash password and check against stored hash
+                        if (hashString(password).equals("5f7d7fda54ac318dae8cd49ba5e6241b24d826daa71fd5607945457f34c21f4a")) {
+                            
+                            messageCache.clear();
+                            this.serverMsg("Cache cleared.");
+                            continue;
+                            
+                        } else {
+                            this.serverMsg("Authentication failed.");
+                            continue;
+                        }
+                        
+
+                    } else if(msg.indexOf("/pmsg") != -1) {
+                        
+                        // Send a private message to another online user
+                    	// Format: [time] <usr> /cmd <usr1> <msg>
+                        
+                        // Extract segments with one expected argument
+                        String[] segments = extractMessageSegments(msg, 1);
+                        
+                        // Check for errors from extraction
+                    	if(segments.length == 1)
                     	{
-                    		this.directMsg("\nUsage: /pmsg <user> <message>");
+                    	    if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+                    	        this.directMsg("\nUsage: /pmsg <user> <message>\n");
+                    	    else
+                    	        this.directMsg("\nUnknown error extracting message segments.\n");
                     		continue;
                     	}
                     	
+                    	boolean clientFound = false;
                     	for(Client c : clients)
                     	{
-                    		if(c.getUsername().equals(syntax[3]))
+                    		if(c.getUsername().equals(segments[4]))
                     		{
-                    			msg="";
-                    			msg += syntax[0] + " " + syntax[1] + "@<" + syntax[3] + "> ";
-                    			for(int i = 4; i<syntax.length;i++)
-                    			{
-                    				msg += syntax[i] + " ";
-                    			}
+                    		    // Add "Private: " + timestamp + <sender@arg1> + message
+                    			String pmsg = "Private: " + segments[0] + " <" + segments[1] + "@" + segments[4] + "> " + segments[2];
+
+                    			// Send back to sender and receiver
                         		c.directMsg("Private: " + msg);
                         		this.directMsg("Private: " + msg);
+
+                        		clientFound = true;
                         		break;
                     		}
                     	}
+                    	
+                    	// Notify if recipient is not online
+                    	if (!clientFound) {
+                    	    this.serverMsg("\"" + segments[4] + "\" is not online.");
+                    	}
+                    	
                     	continue;
                     }
                     
@@ -156,11 +201,22 @@ public class BashTalkServer {
             }
         }
 
+        /* Send a message to only this client. */
         public void directMsg(String msg) 
         {
             this.out.println(msg);
         }
+        
+        /* Send a message with server formatting to only this client. */
+        private void serverMsg(String msg) 
+        {
+            this.directMsg(getTimestamp() + "<# server #> " + msg);
+        }
 
+        /* 
+         * Close the connection to this client.
+         * Optionally notify all users that the client has left the server.
+         */
         public void close(boolean notify) 
         {
             try {
@@ -180,7 +236,10 @@ public class BashTalkServer {
             System.out.println(msg);
         }
     }
+    
+    /* 
 
+    /* Send a message to all clients in the client pool. */
     private static void broadcastMsg(String msg) 
     {
         for (Client client : clients) 
@@ -192,7 +251,109 @@ public class BashTalkServer {
             }
         }
     }
+    
+    /* Hash a string using SHA-256. */
+    public static String hashString(String str) 
+    {
+        try {
+            MessageDigest msgDg = MessageDigest.getInstance("SHA-256");
+            msgDg.update(str.getBytes());
+            return String.format("%032x", new BigInteger(1, msgDg.digest()));
+        } catch(Exception e) {
+            System.out.println("Could not find proper hashing algorithim.");
+            return null;
+        }
+    }
+    
+    /* Return a timestamp of form [HH:mm]. */
+    public static String getTimestamp() 
+    {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+        LocalDateTime now = LocalDateTime.now();
+        return "[" + dtf.format(now) + "]";
+    }
+    
+    /*
+     * Converts the segments of a client message into an array of Strings.
+     * The array is formatted as follows:
+     * [0] - timestamp
+     * [1] - sender
+     * [2] - message
+     * [3] - command (must have '/' as leading character) (optional)
+     * [4] - argument1 (optional)
+     * [5] - argument2 (optional)
+     * ...
+     * [3 + x] - argumentX 
+     * 
+     * If too few arguments are provided, returns a String[] of length 1 with "Too few arguments." in the first position.
+     * If no command is found but numberOfArgs > 0, returns a String[] of length 1 with "No command found." in the first position.
+     * 
+     */
+    public static String[] extractMessageSegments(String msg, int numberOfArgs) {
+        
+        final int MIN_LEN = 3; // Minimum number of positions required for a message
+        final int MSG_ARG_START = 3; // Position at which arguments start in msg
+        final int SEG_ARG_START = MIN_LEN + 1; // Arguments start at MIN_LEN + 1 in fSegments because an additional position is needed for command
+        
+        // Create array for final segments
+        String[] fSegments = new String[SEG_ARG_START + numberOfArgs];
+        
+        // Format: [time] <usr> /cmd <usr1> <msg>
+        
+        // Split raw segments at each space
+        String[] rSegments = msg.split(" ");
+        
+        // Check if there are less segments than needed
+        // If there are too few, return the error
+        // Handicap rSegments by 1 because fSegments always has a command field
+        if(rSegments.length + 1 < fSegments.length)
+        {
+            return new String[] {"Too few arguments"};
+        }
+        
+        // Store the basic info
+        fSegments[0] = rSegments[0]; // Timestamp
+        fSegments[1] = rSegments[1].substring(1,  rSegments[1].length() - 1); // Store sender without < and >
+        fSegments[2] = ""; // Initialize the message segment so that it can be added to below
+        fSegments[3] = (rSegments[2].indexOf("/") == 0) ? rSegments[2] : ""; // Store command if it begins with a /
+        
+        System.out.println(fSegments[3]);
+        
+        // Check if arguments were requested (implies a command), but no command was found
+        if (numberOfArgs > 0 && fSegments[3].length() == 0) {
+            return new String[] {"No command found"};
+        }
+        
+        // Collect arguments
+        // Args fill [SEG_ARG_START] through [SEG_ARG_START + numberOfArgs - 1] in fSegments 
+        // and [MSG_ARG_START] through [MSG_ARG_START + numberOfArgs - 1] in rSegments
+        for (int i = 0; i < numberOfArgs; i++) {
+            fSegments[SEG_ARG_START + i] = rSegments[MSG_ARG_START + i];
+        }
+        
+        // Collect message segments and re-join with a space.
+        // Message segments starts at MIN_LEN + fSegments[3].indexOf("/") + numberOfArgs.
+        // fSegments[3].indexOf("/") checks to see if a valid command was found.
+        // If command is not found, indexOf will return -1.
+        // This will shift msgStart back one position to include what would usually be a command as part of the message.
+        // If a command is found, indexOf will return 0, leaving the msgStart unaffected and the command out of the message
+        int msgStart = MIN_LEN + fSegments[3].indexOf("/") + numberOfArgs;
+        for (int i = msgStart; i < rSegments.length; i++) {
 
+            // Add a space for every word after the first
+            if (i != msgStart) {
+                fSegments[2] += " ";
+            }
+            
+            // Add each word of the message
+            fSegments[2] += rSegments[i];
+            
+        }
+        
+        return fSegments;
+    }
+    
+    /* Get the external IP of the host device. */
     public static String getIp() throws Exception 
     {
         URL AWSCheck = new URL("http://checkip.amazonaws.com");
@@ -211,4 +372,5 @@ public class BashTalkServer {
             }
         }
     }
+    
 }
