@@ -142,11 +142,11 @@ public class BashTalkServer {
                             
                             messageCache.clear();
                             this.serverMsg("Cache cleared.");
-                            continue;
+
                             
                         } else {
                             this.serverMsg("Authentication failed.");
-                            continue;
+
                         }
                         
 
@@ -165,7 +165,7 @@ public class BashTalkServer {
                     	        this.directMsg("\nUsage: /pmsg <user> <message>\n");
                     	    else
                     	        this.directMsg("\nUnknown error extracting message segments.\n");
-                    		continue;
+
                     	}
                     	
                     	boolean clientFound = false;
@@ -189,12 +189,16 @@ public class BashTalkServer {
                     	if (!clientFound) {
                     	    this.serverMsg("\"" + segments[4] + "\" is not online.");
                     	}
-                    	
-                    	continue;
-                    }
+
+
+                    } else {
+                        
+                        // No special commands were found. Broadcast the message
                     
-                    broadcastMsg(msg);
-                    messageCache.add(msg);
+                        broadcastMsg(msg);
+                        messageCache.add(msg);
+                    
+                    }
                 }
             } catch (IOException e) {
                 log("Error handling client #" + this.clientNumber + ": " + e);
@@ -210,7 +214,7 @@ public class BashTalkServer {
         /* Send a message with server formatting to only this client. */
         private void serverMsg(String msg) 
         {
-            this.directMsg(getTimestamp() + "<# server #> " + msg);
+            this.directMsg(getTimestamp() + " <# server #> " + msg);
         }
 
         /* 
@@ -316,8 +320,6 @@ public class BashTalkServer {
         fSegments[1] = rSegments[1].substring(1,  rSegments[1].length() - 1); // Store sender without < and >
         fSegments[2] = ""; // Initialize the message segment so that it can be added to below
         fSegments[3] = (rSegments[2].indexOf("/") == 0) ? rSegments[2] : ""; // Store command if it begins with a /
-        
-        System.out.println(fSegments[3]);
         
         // Check if arguments were requested (implies a command), but no command was found
         if (numberOfArgs > 0 && fSegments[3].length() == 0) {
