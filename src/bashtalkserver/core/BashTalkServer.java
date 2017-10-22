@@ -10,7 +10,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -20,6 +19,7 @@ public class BashTalkServer {
     private static ArrayList<Client> clients = new ArrayList<Client>();
     private static ArrayList<String> messageCache = new ArrayList<String>();
     private static final int MAX_CLIENTS = 50;
+    private static final int MAX_CACHE_SIZE = 100;
 
     public static void main(String[] args) throws Exception {
         final String HOST = getIp();
@@ -165,9 +165,13 @@ public class BashTalkServer {
                     	        this.directMsg("\nUsage: /pmsg <user> <message>\n");
                     	    else
                     	        this.directMsg("\nUnknown error extracting message segments.\n");
-
+                    	    
+                    	    continue;
                     	}
                     	
+                    	for (String str : segments)
+                    	    System.out.println(str);
+
                     	boolean clientFound = false;
                     	for(Client c : clients)
                     	{
@@ -177,8 +181,8 @@ public class BashTalkServer {
                     			String pmsg = "Private: " + segments[0] + " <" + segments[1] + "@" + segments[4] + "> " + segments[2];
 
                     			// Send back to sender and receiver
-                        		c.directMsg("Private: " + msg);
-                        		this.directMsg("Private: " + msg);
+                        		c.directMsg(pmsg);
+                        		this.directMsg(pmsg);
 
                         		clientFound = true;
                         		break;
@@ -197,6 +201,11 @@ public class BashTalkServer {
                     
                         broadcastMsg(msg);
                         messageCache.add(msg);
+                        
+                        // Remove the oldest message if cache is full
+                        if (messageCache.size() > MAX_CACHE_SIZE) {
+                            messageCache.remove(0);
+                        }
                     
                     }
                 }
@@ -301,8 +310,6 @@ public class BashTalkServer {
         
         // Create array for final segments
         String[] fSegments = new String[SEG_ARG_START + numberOfArgs];
-        
-        // Format: [time] <usr> /cmd <usr1> <msg>
         
         // Split raw segments at each space
         String[] rSegments = msg.split(" ");
