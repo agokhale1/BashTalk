@@ -107,6 +107,9 @@ public class ChatUI extends JFrame {
         terminal.setBackground(Color.BLUE);
         terminal.setForeground(Color.GREEN);
         terminal.setEditable(false);
+        //Sets the scrollbar automatically to the bottom of the JTextArea
+        DefaultCaret c = (DefaultCaret)terminal.getCaret();
+        c.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         // Settings for the terminalPanel that holds the terminal textArea
         JPanel tpan = new JPanel(new BorderLayout());
