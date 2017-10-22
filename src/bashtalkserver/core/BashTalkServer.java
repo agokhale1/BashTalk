@@ -146,6 +146,14 @@ public class BashTalkServer {
                     		}
                     	}
                     	continue;
+                    } else if(msg.indexOf("/users") != -1)
+                    {
+                    	msg = "[";
+                    	for(Client c : clients)
+                    	{
+                    		msg += c.getUsername() + ", ";
+                    	}
+                    	msg = msg.substring(0, msg.length()-2) + "]";
                     }
                     
                     broadcastMsg(msg);
