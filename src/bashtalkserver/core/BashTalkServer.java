@@ -104,7 +104,8 @@ public class BashTalkServer {
                 }
                 this.directMsg("-- End of Message History --");
                 broadcastMsg(username + " has joined the server.");
-
+                printOnlineUsers();
+                
                 // Wait for messages from client
                 while (true) 
                 {
@@ -148,12 +149,8 @@ public class BashTalkServer {
                     	continue;
                     } else if(msg.indexOf("/users") != -1)
                     {
-                    	msg = "[";
-                    	for(Client c : clients)
-                    	{
-                    		msg += c.getUsername() + ", ";
-                    	}
-                    	msg = msg.substring(0, msg.length()-2) + "]";
+                    	printOnlineUsers();
+                    	continue;
                     }
                     
                     broadcastMsg(msg);
@@ -164,6 +161,16 @@ public class BashTalkServer {
             }
         }
 
+        public void printOnlineUsers()
+        {
+        	String msg = "\nOnline Users: [";
+        	for(Client c : clients)
+        	{
+        		msg += c.getUsername() + ", ";
+        	}
+        	msg = msg.substring(0, msg.length()-2) + "]";
+        	this.directMsg(msg);
+        }
         public void directMsg(String msg) 
         {
             this.out.println(msg);
