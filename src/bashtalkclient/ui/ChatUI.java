@@ -2,11 +2,13 @@ package bashtalkclient.ui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.*;
 
 import bashtalkclient.core.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.BadLocationException;
@@ -67,9 +69,8 @@ public class ChatUI extends JFrame {
     /* Initializes all JComponents to displayed to the client */
     private void initComponents(int uiscale, int scale) {
         // Creates the program icon and sets it to the JFrame
-        ImageIcon img = new ImageIcon("src/bashTalk.png");
-        this.setIconImage(img.getImage());
-
+        this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("src/bashTalk.png")).getImage());
+        
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
