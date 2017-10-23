@@ -143,7 +143,7 @@ public class BashTalkServer {
                         String password = segments[2];
                         
                         // Hash password and check against stored hash
-                        if (hashString(password).equals("5f7d7fda54ac318dae8cd49ba5e6241b24d826daa71fd5607945457f34c21f4a")) {
+                        if (hashString(password).equals("4e1b5f481e0d36e5230b7a423a1c9a2418f4819737cdbb48ed2d79dc17c558ab")) {
                             
                             messageCache.clear();
                             this.serverMsg("Cache cleared.");
