@@ -170,44 +170,44 @@ public class ChatUI extends JFrame {
         });
     }
 
-    /* Creates a custom caret that gives a terminal feel */
-    public class MyCaret extends DefaultCaret {
-
-        private String mark = "<";
+    /* Creates a custom caret that gives a more terminal feel */
+    public class MyCaret extends DefaultCaret 
+    {
         private java.awt.Image img = null;
-
-        public MyCaret() {
+        
+        /*Initializes the new caret by setting its image and its blink rate*/
+        public MyCaret() 
+        {
             setBlinkRate(500);
             try {
-                ImageIcon icon = new ImageIcon("src/cursor.png");
-                img = icon.getImage();
+                img = new ImageIcon("src/cursor.png").getImage();
             } catch (Exception e) {
+            	System.out.println("Cursor image not found!");
             }
         }
 
+        /*Removes the current instance of the caret and repaints it to the terminal*/
         @Override
-        protected synchronized void damage(Rectangle r) {
-            if (r == null) {
+        protected synchronized void damage(Rectangle r) 
+        {
+            if (r == null)
                 return;
-            }
 
-            JTextComponent comp = getComponent();
-            FontMetrics fm = comp.getFontMetrics(comp.getFont());
-            int textWidth = 35;
-            int textHeight = 57;
+            FontMetrics fm = getComponent().getFontMetrics(getComponent().getFont());
             x = r.x;
             y = r.y;
-            width = textWidth;
-            height = textHeight;
+            width = tag.getFont().getSize() / 2;
+            height = tag.getFont().getSize();
             repaint(); // calls getComponent().repaint(x, y, width, height)
         }
 
+        /*Paints the caret image to the same location every blink interval*/
         @Override
-        public void paint(Graphics g) {
+        public void paint(Graphics g) 
+        {
             JTextComponent comp = getComponent();
-            if (comp == null) {
+            if (comp == null)
                 return;
-            }
 
             int dot = getDot();
             Rectangle r = null;
@@ -216,19 +216,19 @@ public class ChatUI extends JFrame {
             } catch (BadLocationException e) {
                 return;
             }
-            if (r == null) {
+            if (r == null)
                 return;
-            }
 
-            if ((x != r.x) || (y != r.y)) {
+            //If the location changes remove the current instance and repaint the caret symbol to its new location
+            if ((x != r.x) || (y != r.y)) 
+            {
                 repaint(); // erase previous location of caret
                 damage(r);
             }
 
-            if (isVisible()) {
-                FontMetrics fm = comp.getFontMetrics(comp.getFont());
-                g.drawImage(img, x, y + 5, tag.getFont().getSize() / 2, tag.getFont().getSize(), Color.white, window);
-            }
+            //Draws the caret on the frame
+            if (isVisible())
+                g.drawImage(img, x, y + 2, width, height, Color.white, window);
         }
 
     }
