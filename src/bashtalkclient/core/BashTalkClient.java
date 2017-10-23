@@ -140,6 +140,12 @@ public class BashTalkClient {
                 break;
             }
 
+            // User has been booted from the server
+            if (incoming.equals("booted")) {
+                JOptionPane.showMessageDialog(chatWindow, "An administrator booted you from the server.");
+                System.exit(0);
+            }
+
             // Append the message to the terminal
             chatWindow.addMessage(incoming);
         }
