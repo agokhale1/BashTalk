@@ -124,7 +124,6 @@ public class BashTalkServer {
                     if (msg.indexOf("/exit") != -1) {
                         
                         // Close the connection for this client
-                        
                         clients.remove(this);
                         this.close(true);
                         break;
@@ -201,7 +200,27 @@ public class BashTalkServer {
                         
                         // Print list of users online
                     	printOnlineUsers();
+                    
+                    } else if(msg.indexOf("/mute") != -1) {
                     	
+                    	// Mute the current client temporarily
+                    	clients.remove(this);
+                    	this.directMsg("You have muted this chat.");
+                    
+                    } else if(msg.indexOf("/mute") != -1) {
+                    	
+                    	// Unmute the client and give access to future messages
+                    	clients.add(this);
+                    	this.directMsg("You have unmuted this chat.");
+                    
+                    } else if(msg.indexOf("/ban") != -1) {	
+                    	
+                    	//Ban user from future access (by blocking IP?)
+                    } else if(msg.indexOf("/help") != -1) {
+                    	
+                    	// Prints all possible commands available
+                    	String list = "\nClear terminal: /clear\nExit terminal: /exit\nClear Cache(superuser): /clear_cache\nUsers online:/users\nPrivate Message: /pmsg <user> <message>\nMute: /mute\nUnmute: /unmute\nBan(superuser): /ban <user>\n";
+                    	this.directMsg(list);
                     	
                     } else {
 

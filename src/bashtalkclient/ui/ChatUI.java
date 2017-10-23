@@ -180,7 +180,7 @@ public class ChatUI extends JFrame
 						client.sendMessage(username + input.getText());
 					
 					// Flags the process that the input needs to be password protected
-					if(input.getText().equals("/clear_cache"))
+					if(input.getText().equals("/clear_cache") || input.getText().indexOf("/ban") != -1)
 						flag = true;
 					input.setText(null);
 				}
