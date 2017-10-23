@@ -254,9 +254,9 @@ public class BashTalkServer {
                         }
 
 
-                    } else if (msg.indexOf("/boot") != -1) {
+                    } else if (msg.indexOf("/ban") != -1) {
 
-                        // Boot the specified user from the server (requires password)
+                        // Ban the specified user from the server (requires password)
 
                         // Extract segments with one expected argument
                         String[] segments = extractMessageSegments(msg, 1);
@@ -266,13 +266,13 @@ public class BashTalkServer {
 
                         if (promptAndValidatePassword() && c != null) {
 
-                            // Boot the user
+                            // Ban the user
                             clients.remove(c);
-                            c.directMsg("An administrator booted you from the server.");
-                            c.directMsg("booted"); // Trigger booted routine in client
+                            c.directMsg("An administrator banned you from the server.");
+                            c.directMsg("banned"); // Trigger banned routine in client
 
                             // Notify the group
-                            broadcastMsg(getTimestamp() + " <" + c.getUsername() + "> was booted from the server.");
+                            broadcastMsg(getTimestamp() + " <" + c.getUsername() + "> was banned from the server.");
 
 
                         } else if (c == null) {

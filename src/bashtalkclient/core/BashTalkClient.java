@@ -140,9 +140,9 @@ public class BashTalkClient {
                 break;
             }
 
-            // User has been booted from the server
-            if (incoming.equals("booted")) {
-                JOptionPane.showMessageDialog(chatWindow, "An administrator booted you from the server.");
+            // User has been banned from the server
+            if (incoming.equals("banned")) {
+                JOptionPane.showMessageDialog(chatWindow, "An administrator banned you from the server.");
                 System.exit(0);
             }
 
