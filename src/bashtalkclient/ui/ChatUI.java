@@ -154,9 +154,14 @@ public class ChatUI extends JFrame
 	{
 		// Checks for keyPress in the input textArea
 		input.addKeyListener(new KeyListener() {
-
+			String pass = "";
+			boolean flag = false;
 			@Override
 			public void keyPressed(KeyEvent e) {
+				
+				// Protects the input so that it is not stolen by wavering eyes
+				passwordProtected(e);
+				
 				if (e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_ENTER)
 					input.append("\n");
 				else if (e.getKeyCode() == KeyEvent.VK_ENTER) 
@@ -164,8 +169,19 @@ public class ChatUI extends JFrame
 					// Forwards the message to the server when enter is pressed
 					if (input.getText().equals("/clear"))
 						clear();
+					else if(flag)
+					{
+						// Sends the stored input value rather than the face value which are stars
+						client.sendMessage(username + pass);
+						flag = false;
+						pass="";
+					}
 					else
 						client.sendMessage(username + input.getText());
+					
+					// Flags the process that the input needs to be password protected
+					if(input.getText().equals("/clear_cache"))
+						flag = true;
 					input.setText(null);
 				}
 			}
@@ -177,6 +193,21 @@ public class ChatUI extends JFrame
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER && !e.isShiftDown())
 					input.setText(null);
+				
+			}
+			
+			/*Protects the input textfield by converting the characters to stars and still keeping its typed value*/
+			private void passwordProtected(KeyEvent e)
+			{
+				int lastChar = input.getText().length() - 1;
+				if(flag && lastChar != -1)
+				{
+					if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+						pass = pass.substring(0, lastChar-1);
+					else
+						pass += input.getText().charAt(lastChar);
+					input.setText(input.getText().substring(0, lastChar) + "*");
+				}
 			}
 		});
 	}
@@ -237,7 +268,5 @@ public class ChatUI extends JFrame
 			if (isVisible())
 				g.drawImage(img, x, y + 2, width, height, Color.white, window);
 		}
-
 	}
-
 }
