@@ -152,7 +152,7 @@ public class ChatUI extends JFrame
 	 */
 	public void keyPress() throws IOException 
 	{
-		//Checks for keyPress in the input textArea
+		// Checks for keyPress in the input textArea
 		input.addKeyListener(new KeyListener() {
 
 			@Override
@@ -171,8 +171,7 @@ public class ChatUI extends JFrame
 			}
 
 			@Override
-			public void keyTyped(KeyEvent e) {
-			}
+			public void keyTyped(KeyEvent e) {}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
