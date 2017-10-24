@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 public class BashTalkServer {
 
     private static final int PORT = 9898;
-    private static final String HASHED_PASSWORD = "5f7d7fda54ac318dae8cd49ba5e6241b24d826daa71fd5607945457f34c21f4a";
+    private static final String HASHED_PASSWORD = "4e1b5f481e0d36e5230b7a423a1c9a2418f4819737cdbb48ed2d79dc17c558ab";
     private static ArrayList<Client> clients = new ArrayList<Client>();
     private static ArrayList<String> messageCache = new ArrayList<String>();
     private static final int MAX_CLIENTS = 50;
