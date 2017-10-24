@@ -201,6 +201,14 @@ public class BashTalkServer {
                         this.directMsg(getOnlineUsers());
 
 
+                    } else if(msg.indexOf("/help") != -1) {
+
+                        // Prints all possible commands available
+
+                        String list = "\nClear terminal: /clear\nExit terminal: /exit\nClear Cache(superuser): /clear_cache\nUsers online:/users\nPrivate Message: /pmsg <user> <message>\nMute: /mute\nUnmute: /unmute\nBan(superuser): /ban <user>\n";
+                        this.directMsg(list);
+
+
                     } else if (muted) {
 
                         // User is muted and cannot send messages to the main group
