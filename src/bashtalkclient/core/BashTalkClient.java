@@ -140,6 +140,12 @@ public class BashTalkClient {
                 break;
             }
 
+            // User has been banned from the server
+            if (incoming.equals("banned")) {
+                JOptionPane.showMessageDialog(chatWindow, "An administrator banned you from the server.");
+                System.exit(0);
+            }
+
             // Append the message to the terminal
             chatWindow.addMessage(incoming);
         }

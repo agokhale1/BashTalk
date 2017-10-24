@@ -44,18 +44,19 @@ Send a private message to a logged-on user. This command DOES NOT create a priva
 /pmsg fakeUser1 Got eeeeem!
 ```
 
-### /clear_cache
-Clear the server's message history. To run successfully, this command requires password authentication. While the server's message cache will be cleared for future users, active user's screens will not be cleared. Until a user logs out or calls /clear on their own screen, they will still be able to see their screen history.
+### /mute
+Mute a user on the server. The user is still allowed to private message.
 ```
-/clear_cache
-[00:00] <# server #> Enter password:
-thisIsTheWrongPassword
-[00:00] <# server #> Authentication failed.
-/clear_cache
-thisIsTheRightPassword
-[00:00] <# server #> Cache cleared.
+/mute annoyingPerson1
+[00:00] <peaceAndQuiet> muted <annoyingPerson1>.
 ```
-Take care to read the server's instructions as entering the password at the wrong time could result in it being broadcast to the entire group.
+
+### /unmute
+Unmute a user on the server.
+```
+/unmute lessAnnoyingPerson2
+[00:00] <forgivenessIsKey> unmuted <lessAnnoyingPerson2>.
+```
 
 ### /clear
 Clear all content from the local display. This will not clear messages on other user's displays or on the server.
@@ -69,6 +70,32 @@ Logout of the server and close the client application.
 /exit
 ```
 The active users on the server will be notified, but the notification will not be cached or visible to users who log on in the future.
+
+## Admin Commands
+To run successfully, these commands require password authentication.
+
+### /boot
+Boot a user from the current session. The group is notified that the user has been booted.
+/boot reallyAnnoyingPerson
+[00:00] <# server #> Enter password:
+thisIsTheWrongPassword
+[00:00] <# server #> Authentication failed.
+/boot reallyAnnoyingPerson
+thisIsTheRightPassword
+[00:00] <reallyAnnoyingPerson> was booted from the server.
+
+### /clear_cache
+Clear the server's message history. While the server's message cache will be cleared for future users, active user's screens will not be cleared. Until a user logs out or calls /clear on their own screen, they will still be able to see their screen history.
+```
+/clear_cache
+[00:00] <# server #> Enter password:
+thisIsTheWrongPassword
+[00:00] <# server #> Authentication failed.
+/clear_cache
+thisIsTheRightPassword
+[00:00] <# server #> Cache cleared.
+```
+Take care to read the server's instructions as entering the password at the wrong time could result in it being broadcast to the entire group.
 
 # Setting Up a Server
 The BashTalk server is the centerpiece (literally) of the entire network. Without a working server, each client is useless. Initially setting up the server is very similar to setting up the client.
