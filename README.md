@@ -85,7 +85,7 @@ thisIsTheWrongPassword
 [00:00] <# server #> Authentication failed.
 /ban reallyAnnoyingPerson
 thisIsTheRightPassword
-[00:00] <reallyAnnoyingPerson> was booted from the server.
+[00:00] <reallyAnnoyingPerson> was banned from the server.
 ```
 
 ### /clear_cache
