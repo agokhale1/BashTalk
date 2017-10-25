@@ -172,9 +172,9 @@ public class BashTalkServer {
 
                         if (segments.length == 1) {
                             if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
-                                this.directMsg("\nUsage: /pmsg <user> <message>\n");
+                                this.directMsg("\nUsage: /pmsg <user> <message>");
                             else
-                                this.directMsg("\nUnknown error extracting message segments.\n");
+                                this.directMsg("\nUnknown error extracting message segments.");
 
                             continue;
                         }
