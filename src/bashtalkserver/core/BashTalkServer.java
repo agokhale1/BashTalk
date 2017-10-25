@@ -210,7 +210,7 @@ public class BashTalkServer {
                         this.directMsg(list);
 
 
-                    } else if (muted) {
+                    } else if (this.muted) {
 
                         // User is muted and cannot send messages to the main group
 
@@ -223,6 +223,15 @@ public class BashTalkServer {
 
                         // Extract segments with one expected argument
                         String[] segments = extractMessageSegments(msg, 1);
+                        
+                        if (segments.length == 1) {
+                            if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+                                this.directMsg("\nUsage: /mute <user>");
+                            else
+                                this.directMsg("\nUnknown error extracting message segments.");
+
+                            continue;
+                        }
 
                         // Get the targeted client
                         Client c = getClient(segments[4]);
@@ -246,6 +255,15 @@ public class BashTalkServer {
 
                         // Extract segments with one expected argument
                         String[] segments = extractMessageSegments(msg, 1);
+                        
+                        if (segments.length == 1) {
+                            if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+                                this.directMsg("\nUsage: /unmute <user>");
+                            else
+                                this.directMsg("\nUnknown error extracting message segments.");
+
+                            continue;
+                        }
 
                         // Get the targeted client
                         Client c = getClient(segments[4]);
@@ -269,6 +287,15 @@ public class BashTalkServer {
 
                         // Extract segments with one expected argument
                         String[] segments = extractMessageSegments(msg, 1);
+                        
+                        if (segments.length == 1) {
+                            if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+                                this.directMsg("\nUsage: /ban <user>");
+                            else
+                                this.directMsg("\nUnknown error extracting message segments.");
+
+                            continue;
+                        }
 
                         // Get the targeted client
                         Client c = getClient(segments[4]);
