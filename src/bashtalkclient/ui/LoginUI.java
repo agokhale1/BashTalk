@@ -107,7 +107,7 @@ public class LoginUI extends JFrame {
 	private void initComponents()
 	{
 		// Creates the program icon and sets it to the JFrame
-		ImageIcon img = new ImageIcon("src/bashTalk.png");
+		ImageIcon img = new ImageIcon(LoginUI.class.getResource("/bashTalk.png"));
 		setIconImage(img.getImage());
 		
 		// Creates a panel for the whole JFrame

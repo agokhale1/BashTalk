@@ -79,7 +79,7 @@ public class ChatUI extends JFrame {
 	private void initComponents()
 	{
 		// Creates the program icon and sets it to the JFrame
-		ImageIcon img = new ImageIcon("src/bashTalk.png");
+		ImageIcon img = new ImageIcon(ChatUI.class.getResource("/bashTalk.png"));
 		setIconImage(img.getImage());
 		
 		// Creates a panel for the whole JFrame
@@ -235,7 +235,7 @@ public class ChatUI extends JFrame {
 			setBlinkRate(500);
 			try
 			{
-				this.img = new ImageIcon("src/cursor.png").getImage();
+				this.img = new ImageIcon(ChatUI.class.getResource("/cursor.png")).getImage();
 			}
 			catch (Exception e)
 			{
