@@ -2,6 +2,7 @@ package bashtalkclient.ui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import java.util.regex.*;
 
 import javax.swing.*;
@@ -107,8 +108,12 @@ public class LoginUI extends JFrame {
 	private void initComponents()
 	{
 		// Creates the program icon and sets it to the JFrame
-		ImageIcon img = new ImageIcon(LoginUI.class.getResource("/bashTalk.png"));
-		setIconImage(img.getImage());
+		ArrayList<Image> iconImgs = new ArrayList<Image>();
+		
+		for(int i = 512; i >= 16; i /= 2)
+			iconImgs.add(new ImageIcon(getClass().getResource("/icon_" + i + "x" + i + ".png")).getImage());
+		
+		setIconImages(iconImgs);
 		
 		// Creates a panel for the whole JFrame
 		this.contentPane = new JPanel();
