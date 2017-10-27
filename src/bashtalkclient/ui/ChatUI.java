@@ -3,6 +3,7 @@ package bashtalkclient.ui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -56,6 +57,16 @@ public class ChatUI extends JFrame {
 		initComponents();
 		setContentPane(this.contentPane);
 		
+		addWindowFocusListener(new WindowAdapter() {
+			
+			@Override
+			public void windowGainedFocus(WindowEvent e)
+			{
+				input.requestFocusInWindow();
+			}
+			
+		});
+		
 		// Runs the KeyListener to check if Enter is pressed
 		try
 		{
@@ -79,8 +90,12 @@ public class ChatUI extends JFrame {
 	private void initComponents()
 	{
 		// Creates the program icon and sets it to the JFrame
-		ImageIcon img = new ImageIcon(ChatUI.class.getResource("/bashTalk.png"));
-		setIconImage(img.getImage());
+		ArrayList<Image> iconImgs = new ArrayList<Image>();
+		
+		for(int i = 512; i >= 16; i /= 2)
+			iconImgs.add(new ImageIcon(getClass().getResource("/icon_" + i + "x" + i + ".png")).getImage());
+		
+		setIconImages(iconImgs);
 		
 		// Creates a panel for the whole JFrame
 		this.contentPane = new JPanel();
