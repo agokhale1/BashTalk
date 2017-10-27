@@ -16,6 +16,7 @@ public class BashTalkServer {
 	private static ArrayList<String> messageCache = new ArrayList<String>();
 	private static final int MAX_CLIENTS = 50;
 	private static final int MAX_CACHE_SIZE = 100;
+	private static final String HELP_TEXT = "\nClear terminal: /clear\nExit terminal: /exit\nClear Cache(superuser): /clear_cache\nUsers online:/users\nPrivate Message: /pmsg <user> <message>\nMute: /mute\nUnmute: /unmute\nBan(superuser): /ban <user>";
 	
 	public static void main(String[] args) throws Exception
 	{
@@ -144,198 +145,195 @@ public class BashTalkServer {
 					
 					// Get the message that is sent to the server
 					String msg = this.in.readLine();
+					String command = extractMessageSegments(msg, 0)[3];
 					
-					if (msg.indexOf("/exit") != -1)
+					if (!command.equals(""))
 					{
-						
-						// Close the connection for this client
-						
-						close(true);
-						break;
-						
-					}
-					else if (msg.indexOf("/clear_cache") != -1)
-					{
-						
-						// Clear the server's cache of stored messages (requires password)
-						// Messages on user's screens are preserved for now
-						
-						// Request, receieve, hash, and check password against stored hash
-						if (promptAndValidatePassword())
+						if (command.equals("/exit"))
 						{
-							
-							messageCache.clear();
-							serverMsg("Cache cleared.");
-							
+							// Close the connection for this client
+							close(true);
+							break;
 						}
-						else
-							serverMsg("Authentication failed.");
-						
-					}
-					else if (msg.indexOf("/pmsg") != -1)
-					{
-						
-						// Send a private message to another online user
-						// Format: [time] <usr> /cmd <usr1> <msg>
-						
-						// Extract segments with one expected argument
-						String[] segments = extractMessageSegments(msg, 1);
-						
-						// Check for errors from extraction
-						
-						if (segments.length == 1)
+						else if (command.equals("/clear_cache"))
 						{
-							if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
-								directMsg("\nUsage: /pmsg <user> <message>");
+							// Clear the server's cache of stored messages (requires password)
+							// Messages on user's screens are preserved for now
+							
+							// Request, receieve, hash, and check password against stored hash
+							if (promptAndValidatePassword())
+							{
+								messageCache.clear();
+								serverMsg("Cache cleared.");
+							}
 							else
-								directMsg("\nUnknown error extracting message segments.");
-							
-							continue;
+								serverMsg("Authentication failed.");
 						}
-						
-						// Get client by username
-						Client c = getClient(segments[4]);
-						
-						if (c != null)
+						else if (command.equals("/pmsg"))
 						{
-							// Add "Private: " + timestamp + <sender@arg1> + message
-							String pmsg = "Private: " + segments[0] + " <" + segments[1] + "@" + segments[4] + "> " + segments[2];
+							// Send a private message to another online user
+							// Format: [time] <usr> /cmd <usr1> <msg>
 							
-							// Send back to sender and receiver
-							c.directMsg(pmsg);
-							directMsg(pmsg);
+							// Extract segments with one expected argument
+							String[] segments = extractMessageSegments(msg, 1);
 							
-						}
-						else
-							serverMsg("\"" + segments[4] + "\" is not online.");
-						
-					}
-					else if (msg.indexOf("/users") != -1)
-						// Return the list of users online
-						directMsg(getOnlineUsers());
-					else if (msg.indexOf("/help") != -1)
-					{
-						
-						// Prints all possible commands available
-						
-						String list = "\nClear terminal: /clear\nExit terminal: /exit\nClear Cache(superuser): /clear_cache\nUsers online:/users\nPrivate Message: /pmsg <user> <message>\nMute: /mute\nUnmute: /unmute\nBan(superuser): /ban <user>\n";
-						directMsg(list);
-						
-					}
-					else if (this.muted)
-						serverMsg("You are currently muted.");
-					else if (msg.indexOf("/mute") != -1)
-					{
-						
-						// Mute the specified user
-						
-						// Extract segments with one expected argument
-						String[] segments = extractMessageSegments(msg, 1);
-						
-						if (segments.length == 1)
-						{
-							if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
-								directMsg("\nUsage: /mute <user>");
+							// Check for errors from extraction
+							
+							if (segments.length == 1)
+							{
+								if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+									directMsg("\nUsage: /pmsg <user> <message>");
+								else
+									directMsg("\nUnknown error extracting message segments.");
+								
+								continue;
+							}
+							
+							// Get client by username
+							Client c = getClient(segments[4]);
+							
+							if (c != null)
+							{
+								// Add "Private: " + timestamp + <sender@arg1> + message
+								String pmsg = "Private: " + segments[0] + " <" + segments[1] + "@" + segments[4] + "> " + segments[2];
+								
+								// Send back to sender and receiver
+								c.directMsg(pmsg);
+								directMsg(pmsg);
+								
+							}
 							else
-								directMsg("\nUnknown error extracting message segments.");
-							
-							continue;
-						}
-						
-						// Get the targeted client
-						Client c = getClient(segments[4]);
-						
-						if (c != null)
-						{
-							
-							// Mute the user
-							c.setMuted(true);
-							
-							// Notify the group
-							broadcastMsg(getTimestamp() + " <" + getUsername() + "> muted <" + c.getUsername() + ">.");
+								serverMsg("\"" + segments[4] + "\" is not online.");
 							
 						}
-						else
-							serverMsg("\"" + segments[4] + "\" is not online.");
-						
-					}
-					else if (msg.indexOf("/unmute") != -1)
-					{
-						
-						// Unmute the specified user
-						
-						// Extract segments with one expected argument
-						String[] segments = extractMessageSegments(msg, 1);
-						
-						if (segments.length == 1)
+						else if (command.equals("/users"))
+							// Return the list of users online
+							directMsg(getOnlineUsers());
+						else if (command.equals("/help"))
 						{
-							if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
-								directMsg("\nUsage: /unmute <user>");
+							
+							// Prints all possible commands available
+							directMsg(HELP_TEXT);
+							
+						}
+						else if (this.muted)
+							serverMsg("You are currently muted.");
+						else if (msg.equals("/mute"))
+						{
+							
+							// Mute the specified user
+							
+							// Extract segments with one expected argument
+							String[] segments = extractMessageSegments(msg, 1);
+							
+							if (segments.length == 1)
+							{
+								if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+									directMsg("\nUsage: /mute <user>");
+								else
+									directMsg("\nUnknown error extracting message segments.");
+								
+								continue;
+							}
+							
+							// Get the targeted client
+							Client c = getClient(segments[4]);
+							
+							if (c != null)
+							{
+								
+								// Mute the user
+								c.setMuted(true);
+								
+								// Notify the group
+								broadcastMsg(getTimestamp() + " <" + getUsername() + "> muted <" + c.getUsername() + ">.");
+								
+							}
 							else
-								directMsg("\nUnknown error extracting message segments.");
-							
-							continue;
-						}
-						
-						// Get the targeted client
-						Client c = getClient(segments[4]);
-						
-						if (c != null)
-						{
-							
-							// Unmute the user
-							c.setMuted(false);
-							
-							// Notify the group
-							broadcastMsg(getTimestamp() + " <" + getUsername() + "> unmuted <" + c.getUsername() + ">.");
+								serverMsg("\"" + segments[4] + "\" is not online.");
 							
 						}
-						else
-							serverMsg("\"" + segments[4] + "\" is not online.");
-						
-					}
-					else if (msg.indexOf("/ban") != -1)
-					{
-						
-						// Ban the specified user from the server (requires password)
-						
-						// Extract segments with one expected argument
-						String[] segments = extractMessageSegments(msg, 1);
-						
-						if (segments.length == 1)
+						else if (command.equals("/unmute"))
 						{
-							if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
-								directMsg("\nUsage: /ban <user>");
+							
+							// Unmute the specified user
+							
+							// Extract segments with one expected argument
+							String[] segments = extractMessageSegments(msg, 1);
+							
+							if (segments.length == 1)
+							{
+								if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+									directMsg("\nUsage: /unmute <user>");
+								else
+									directMsg("\nUnknown error extracting message segments.");
+								
+								continue;
+							}
+							
+							// Get the targeted client
+							Client c = getClient(segments[4]);
+							
+							if (c != null)
+							{
+								
+								// Unmute the user
+								c.setMuted(false);
+								
+								// Notify the group
+								broadcastMsg(getTimestamp() + " <" + getUsername() + "> unmuted <" + c.getUsername() + ">.");
+								
+							}
 							else
-								directMsg("\nUnknown error extracting message segments.");
+								serverMsg("\"" + segments[4] + "\" is not online.");
 							
-							continue;
 						}
-						
-						// Get the targeted client
-						Client c = getClient(segments[4]);
-						
-						if (promptAndValidatePassword() && c != null)
+						else if (command.equals("/ban"))
 						{
 							
-							// Ban the user
-							clients.remove(c);
-							c.directMsg("An administrator banned you from the server.");
-							c.directMsg("banned"); // Trigger banned routine in client
+							// Ban the specified user from the server (requires password)
 							
-							// Notify the group
-							broadcastMsg(getTimestamp() + " <" + c.getUsername() + "> was banned from the server.");
+							// Extract segments with one expected argument
+							String[] segments = extractMessageSegments(msg, 1);
+							
+							if (segments.length == 1)
+							{
+								if (segments[0].equals("Too few arguments") || segments[0].equals("No command found"))
+									directMsg("\nUsage: /ban <user>");
+								else
+									directMsg("\nUnknown error extracting message segments.");
+								
+								continue;
+							}
+							
+							// Get the targeted client
+							Client c = getClient(segments[4]);
+							
+							if (promptAndValidatePassword() && c != null)
+							{
+								
+								// Ban the user
+								clients.remove(c);
+								c.directMsg("An administrator banned you from the server.");
+								c.directMsg("banned"); // Trigger banned routine in client
+								
+								// Notify the group
+								broadcastMsg(getTimestamp() + " <" + c.getUsername() + "> was banned from the server.");
+								
+							}
+							else if (c == null)
+								serverMsg("\"" + segments[4] + "\" is not online.");
+							else
+								serverMsg("Authentication failed.");
 							
 						}
-						else if (c == null)
-							serverMsg("\"" + segments[4] + "\" is not online.");
 						else
-							serverMsg("Authentication failed.");
-						
+						{
+							directMsg(HELP_TEXT);
+						}
 					}
 					else
 					{
-						
 						// No special commands found. Broadcast the message (unless the user is muted)
 						
 						if (!this.muted)
@@ -347,7 +345,6 @@ public class BashTalkServer {
 						// Remove the oldest message if cache is full
 						if (messageCache.size() > MAX_CACHE_SIZE)
 							messageCache.remove(0);
-						
 					}
 				}
 			}
