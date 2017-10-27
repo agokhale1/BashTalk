@@ -429,7 +429,7 @@ public class BashTalkServer {
 	/* Log a message to the server's screen */
 	private static void log(String msg)
 	{
-		System.out.println(msg);
+		System.out.println(getTimestamp() + " " + msg);
 	}
 	
 	/* Send a message to all clients in the client pool. */
