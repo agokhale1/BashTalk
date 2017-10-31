@@ -526,14 +526,14 @@ public class BashTalkServer {
 		// Check if there are less segments than needed
 		// If there are too few, return the error
 		// Handicap rSegments by 1 because fSegments always has a command field
-		if (rSegments.length + 1 < fSegments.length)
+		if (rSegments.length + 1 < fSegments.length && numberOfArgs > 0)
 			return new String[] {"Too few arguments"};
 		
 		// Store the basic info
 		fSegments[0] = rSegments[0]; // Timestamp
 		fSegments[1] = rSegments[1].substring(1, rSegments[1].length() - 1); // Store sender without < and >
 		fSegments[2] = ""; // Initialize the message segment so that it can be added to below
-		fSegments[3] = rSegments[2].indexOf("/") == 0 ? rSegments[2] : ""; // Store command if it begins with a /
+		fSegments[3] = rSegments.length > 2 && rSegments[2].indexOf("/") == 0 ? rSegments[2] : ""; // Store command if it begins with a /
 		
 		// Check if arguments were requested (implies a command), but no command was
 		// found
