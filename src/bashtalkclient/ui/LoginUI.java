@@ -18,6 +18,7 @@ public class LoginUI extends JFrame {
 	private static final int WIDTH = 26;
 	private static final int HEIGHT = 36;
 	private static final Pattern PATTERN = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+	private static ArrayList<String> addressList = new ArrayList<String>();
 	
 	// Instantiate major JPanels and Windows
 	private Window window;
@@ -26,7 +27,8 @@ public class LoginUI extends JFrame {
 	// Instantiate JComponents
 	private Font font;
 	private JLabel usernameLbl, addressLbl, portLbl;
-	private JTextField username, address, port;
+	private JTextField username, port;
+	private JComboBox<String> address;
 	private JButton confirm, cancel;
 	
 	// Instance of the client
@@ -88,6 +90,8 @@ public class LoginUI extends JFrame {
 		this.contentPane.add(Box.createVerticalStrut(scale * 3));
 		this.contentPane.add(this.btnPane);
 		
+		//Adds the values to the comboBox
+		initAddressList();
 	}
 	
 	/* Sets the resolution of the UI */
@@ -160,23 +164,39 @@ public class LoginUI extends JFrame {
 		});
 		
 		// Creates the text field for the ip address and validates ip address
-		this.address = new JTextField(26);
+		this.address = new JComboBox<String>();
 		this.address.setFont(this.font);
-		this.address.addFocusListener(new FocusListener() {
+		this.address.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+			}
+			
+		});
+		this.address.getEditor().getEditorComponent().addFocusListener(new FocusListener() {
 			
 			@Override
 			public void focusLost(FocusEvent e)
 			{
-				
-				if (!LoginUI.this.address.getText().equals(""))
-					if (!validateIP(LoginUI.this.address.getText()))
+				if (!LoginUI.this.address.getSelectedItem().equals(""))
+					if (!validateIP(LoginUI.this.address.getSelectedItem().toString()))
 					{
 						JOptionPane.showMessageDialog(getParent(), "Input a valid IP address!", "Error", JOptionPane.ERROR_MESSAGE);
-						LoginUI.this.address.setForeground(Color.RED);
+						LoginUI.this.address.getEditor().getEditorComponent().setForeground(Color.RED);
 					}
 					else
-						LoginUI.this.address.setForeground(Color.GREEN);
-					
+						LoginUI.this.address.getEditor().getEditorComponent().setForeground(Color.GREEN);
 			}
 			
 			@Override
@@ -195,7 +215,7 @@ public class LoginUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
-				if (e.getKeyCode() == KeyEvent.VK_ENTER && validateIP(LoginUI.this.address.getText()) && validateUsername(LoginUI.this.username.getText()) && !validatePort(LoginUI.this.port.getText()))
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && validateIP(LoginUI.this.address.getSelectedItem().toString()) && validateUsername(LoginUI.this.username.getText()) && !validatePort(LoginUI.this.port.getText()))
 					createConnection();
 			}
 			
@@ -240,7 +260,7 @@ public class LoginUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (validateIP(LoginUI.this.address.getText()) && validateUsername(LoginUI.this.username.getText()) && !validatePort(LoginUI.this.port.getText()))
+				if (validateIP(LoginUI.this.address.getSelectedItem().toString()) && validateUsername(LoginUI.this.username.getText()) && !validatePort(LoginUI.this.port.getText()))
 					createConnection();
 			}
 		});
@@ -266,7 +286,8 @@ public class LoginUI extends JFrame {
 		this.username.setMaximumSize(this.username.getPreferredSize());
 		
 		this.address.setAlignmentX(Component.CENTER_ALIGNMENT);
-		this.address.setMaximumSize(this.address.getPreferredSize());
+		this.address.setMaximumSize(new Dimension(350, 200));
+		this.address.setEditable(true);
 		
 		this.port.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.port.setMaximumSize(this.port.getPreferredSize());
@@ -280,7 +301,7 @@ public class LoginUI extends JFrame {
 	{
 		try
 		{
-			this.client.setCredentials(this.address.getText(), this.port.getText(), this.username.getText());
+			this.client.setCredentials(this.address.getSelectedItem().toString(), this.port.getText(), this.username.getText());
 			this.client.connectToServer();
 			this.window.dispose();
 		}
@@ -313,5 +334,12 @@ public class LoginUI extends JFrame {
 	private boolean validatePort(String port)
 	{
 		return !port.matches("[0-9]+");
+	}
+	
+	/**/
+	private void initAddressList()
+	{
+		address.addItem("127.0.0.1");
+		address.addItem("128.211.195.131");
 	}
 }
