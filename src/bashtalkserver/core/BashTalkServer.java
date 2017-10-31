@@ -16,7 +16,7 @@ public class BashTalkServer {
 	private static ArrayList<String> messageCache = new ArrayList<String>();
 	private static final int MAX_CLIENTS = 50;
 	private static final int MAX_CACHE_SIZE = 100;
-	private static final String HELP_TEXT = "\n\tClear terminal: /clear\n\tExit terminal: /exit\n\tClear Cache (superuser): /clear_cache\n\tUsers online:/users\n\tPrivate Message: /pmsg <user> <message>\n\tMute: /mute\n\tUnmute: /unmute\n\tBan (superuser): /ban <user>";
+	private static final String HELP_TEXT = "\n\tClear terminal: /clear\n\tExit terminal: /exit\n\tClear Cache (superuser): /clear_cache\n\tUsers online: /users\n\tPrivate Message: /pmsg <user> <message>\n\tMute: /mute\n\tUnmute: /unmute\n\tBan (superuser): /ban <user>";
 	
 	public static void main(String[] args) throws Exception
 	{
