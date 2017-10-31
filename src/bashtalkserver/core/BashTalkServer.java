@@ -337,6 +337,8 @@ public class BashTalkServer {
 							broadcastMsg(msg);
 							messageCache.add(msg);
 						}
+						else
+							serverMsg("You are currently muted.");
 						
 						// Remove the oldest message if cache is full
 						if (messageCache.size() > MAX_CACHE_SIZE)
