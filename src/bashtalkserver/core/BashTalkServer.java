@@ -16,7 +16,7 @@ public class BashTalkServer {
 	private static ArrayList<String> messageCache = new ArrayList<String>();
 	private static final int MAX_CLIENTS = 50;
 	private static final int MAX_CACHE_SIZE = 100;
-	private static final String HELP_TEXT = "\nClear terminal: /clear\nExit terminal: /exit\nClear Cache(superuser): /clear_cache\nUsers online:/users\nPrivate Message: /pmsg <user> <message>\nMute: /mute\nUnmute: /unmute\nBan(superuser): /ban <user>";
+	private static final String HELP_TEXT = "\nClear terminal: /clear\nExit terminal: /exit\nClear Cache (superuser): /clear_cache\nUsers online:/users\nPrivate Message: /pmsg <user> <message>\nMute: /mute\nUnmute: /unmute\nBan (superuser): /ban <user>";
 	
 	public static void main(String[] args) throws Exception
 	{
@@ -329,7 +329,10 @@ public class BashTalkServer {
 						}
 						else
 						{
-							directMsg(HELP_TEXT);
+							
+							// Command not found. Send help text.
+							
+							directMsg("\nInvalid command \"" + command + "\"" + HELP_TEXT);
 						}
 					}
 					else
