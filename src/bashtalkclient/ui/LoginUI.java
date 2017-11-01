@@ -313,7 +313,7 @@ public class LoginUI extends JFrame {
 	{
 		try
 		{
-			if(this.address.getSelectedItem().toString().equals("localhost"))
+			if (this.address.getSelectedItem().toString().equals("localhost"))
 			{
 				this.address.setSelectedItem("127.0.0.1");
 			}
