@@ -183,7 +183,7 @@ public class LoginUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
-				if ((e.getKeyCode() >= KeyEvent.VK_0 && e.getKeyCode() <= KeyEvent.VK_9) || e.getKeyCode() == KeyEvent.VK_PERIOD)
+				if ((e.getKeyCode() >= KeyEvent.VK_0 && e.getKeyCode() <= KeyEvent.VK_9) || e.getKeyCode() == KeyEvent.VK_PERIOD || (e.getKeyChar() >= 'a' && e.getKeyChar() <= 'z'))
 					LoginUI.this.IPString += e.getKeyChar();
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && LoginUI.this.IPString.length() > 0)
 					LoginUI.this.IPString = LoginUI.this.IPString.substring(0, LoginUI.this.IPString.length() - 1);
@@ -313,6 +313,10 @@ public class LoginUI extends JFrame {
 	{
 		try
 		{
+			if(this.address.getSelectedItem().toString().equals("localhost"))
+			{
+				this.address.setSelectedItem("127.0.0.1");
+			}
 			this.client.setCredentials(this.address.getSelectedItem().toString(), this.port.getText(), this.username.getText());
 			this.client.connectToServer();
 			this.window.dispose();
@@ -348,7 +352,7 @@ public class LoginUI extends JFrame {
 	/* Validates the IP Address to its correct format */
 	private boolean validateIP(String ip)
 	{
-		return PATTERN.matcher(ip).matches();
+		return PATTERN.matcher(ip).matches() || ip.equals("localhost");
 	}
 	
 	/* Validates username excluding all special characters */
@@ -406,7 +410,7 @@ public class LoginUI extends JFrame {
 		address.showPopup();
 		filteredList.clear();
 		int numItems = address.getItemCount();
-		
+		System.out.println(ip);
 		// Removes all the IP data so that it can be filtered
 		for (int i = 0; i < numItems; i++)
 			address.removeItemAt(0);
