@@ -25,9 +25,11 @@ public class LoginUI extends JFrame {
 	private static ArrayList<String> filteredList = new ArrayList<String>();
 	private String IPString = "";
 	
-	//File that stores the list of previously entered IPs
+	// File that stores the list of previously entered IPs
+	// private File ipFile = new File(getClass().getClassLoader().getResource("ip_file.txt").getFile());
 	private File ipFile = new File(getClass().getClassLoader().getResource("ip_file.txt").getFile());
 	private BufferedReader reader = null;
+	private BufferedWriter writer = null;
 	
 	// Instantiate major JPanels and Windows
 	private Window window;
@@ -99,7 +101,7 @@ public class LoginUI extends JFrame {
 		this.contentPane.add(Box.createVerticalStrut(scale * 3));
 		this.contentPane.add(this.btnPane);
 		
-		//Adds the values to the comboBox
+		// Adds the values to the comboBox
 		initIPList();
 	}
 	
@@ -123,7 +125,7 @@ public class LoginUI extends JFrame {
 		// Creates the program icon and sets it to the JFrame
 		ArrayList<Image> iconImgs = new ArrayList<Image>();
 		
-		for(int i = 512; i >= 16; i /= 2)
+		for (int i = 512; i >= 16; i /= 2)
 			iconImgs.add(new ImageIcon(getClass().getResource("/icon_" + i + "x" + i + ".png")).getImage());
 		
 		setIconImages(iconImgs);
@@ -181,17 +183,17 @@ public class LoginUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
-				if((e.getKeyCode() >= KeyEvent.VK_0 && e.getKeyCode() <= KeyEvent.VK_9) || e.getKeyCode() == KeyEvent.VK_PERIOD)
+				if ((e.getKeyCode() >= KeyEvent.VK_0 && e.getKeyCode() <= KeyEvent.VK_9) || e.getKeyCode() == KeyEvent.VK_PERIOD)
 					LoginUI.this.IPString += e.getKeyChar();
-				if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE && LoginUI.this.IPString.length() > 0)
-					LoginUI.this.IPString = LoginUI.this.IPString.substring(0, LoginUI.this.IPString.length()-1);
+				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && LoginUI.this.IPString.length() > 0)
+					LoginUI.this.IPString = LoginUI.this.IPString.substring(0, LoginUI.this.IPString.length() - 1);
 				updateIPList(LoginUI.this.IPString);
 			}
-
+			
 			@Override
 			public void keyReleased(KeyEvent e)
 			{}
-
+			
 			@Override
 			public void keyTyped(KeyEvent e)
 			{}
@@ -314,10 +316,20 @@ public class LoginUI extends JFrame {
 			this.client.setCredentials(this.address.getSelectedItem().toString(), this.port.getText(), this.username.getText());
 			this.client.connectToServer();
 			this.window.dispose();
-			if(!addressList.contains(IPString))
+			if (!addressList.contains(address.getSelectedItem()))
 			{
 				addressList.add(IPString);
 				address.addItem(IPString);
+				try
+				{
+					writer = new BufferedWriter(new FileWriter(getClass().getClassLoader().getResource("ip_file.txt").getFile(), true));
+					writer.append(address.getSelectedItem() + "\n");
+					writer.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 		catch (Exception err)
@@ -351,25 +363,25 @@ public class LoginUI extends JFrame {
 		return !port.matches("[0-9]+");
 	}
 	
-	/*Initializes the address list with the previously used IP's stored in the ipFile*/
+	/* Initializes the address list with the previously used IP's stored in the ipFile */
 	private void initIPList()
 	{
-		try 
+		try
 		{
 			reader = new BufferedReader(new FileReader(ipFile));
 			String inLine = "";
 			
-			while((inLine = reader.readLine()) != null)
+			while ((inLine = reader.readLine()) != null)
 			{
 				addressList.add(inLine);
 				address.addItem(inLine);
 			}
-		} 
-		catch(FileNotFoundException e)
+		}
+		catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
 		}
-		catch(IOException e)
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -377,10 +389,10 @@ public class LoginUI extends JFrame {
 		{
 			try
 			{
-				if(reader != null)
+				if (reader != null)
 					reader.close();
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
@@ -388,7 +400,7 @@ public class LoginUI extends JFrame {
 		address.setSelectedItem("");
 	}
 	
-	/*Updates the IP list to the entered value and auto-completes through the previously used IPs*/
+	/* Updates the IP list to the entered value and auto-completes through the previously used IPs */
 	private void updateIPList(String ip)
 	{
 		address.showPopup();
@@ -396,19 +408,19 @@ public class LoginUI extends JFrame {
 		int numItems = address.getItemCount();
 		
 		// Removes all the IP data so that it can be filtered
-		for(int i = 1;i<numItems;i++)
-			address.removeItemAt(1);
-		address.setSelectedItem(ip.substring(0, ip.length()-1));
+		for (int i = 0; i < numItems; i++)
+			address.removeItemAt(0);
+		address.setSelectedItem(ip.substring(0, ip.length() - 1));
 		
 		// Determines which IP matches and stores it in filteredList
-		for(int i = 0;i < addressList.size();i++)
+		for (int i = 0; i < addressList.size(); i++)
 		{
-			if(addressList.get(i).length() >= ip.length() && addressList.get(i).substring(0, ip.length()).equals(ip))
+			if (addressList.get(i).length() >= ip.length() && addressList.get(i).substring(0, ip.length()).equals(ip))
 				filteredList.add(addressList.get(i));
 		}
 		
 		// Repaints the filtered data onto the JComboBox
-		for(int i = 0;i < filteredList.size();i++)
+		for (int i = 0; i < filteredList.size(); i++)
 			address.addItem(filteredList.get(i));
 	}
 }
