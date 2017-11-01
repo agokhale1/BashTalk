@@ -2,6 +2,7 @@ package bashtalkclient.ui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -18,7 +19,15 @@ public class LoginUI extends JFrame {
 	private static final int WIDTH = 26;
 	private static final int HEIGHT = 36;
 	private static final Pattern PATTERN = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+	
+	// Lists and variables to incorporate IP address autocomplete and drop-down menu
 	private static ArrayList<String> addressList = new ArrayList<String>();
+	private static ArrayList<String> filteredList = new ArrayList<String>();
+	private String IPString = "";
+	
+	//File that stores the list of previously entered IPs
+	private File ipFile = new File(getClass().getClassLoader().getResource("ip_file.txt").getFile());
+	private BufferedReader reader = null;
 	
 	// Instantiate major JPanels and Windows
 	private Window window;
@@ -91,7 +100,7 @@ public class LoginUI extends JFrame {
 		this.contentPane.add(this.btnPane);
 		
 		//Adds the values to the comboBox
-		initAddressList();
+		initIPList();
 	}
 	
 	/* Sets the resolution of the UI */
@@ -165,24 +174,27 @@ public class LoginUI extends JFrame {
 		
 		// Creates the text field for the ip address and validates ip address
 		this.address = new JComboBox<String>();
+		this.address.setEditable(true);
 		this.address.setFont(this.font);
-		this.address.addKeyListener(new KeyListener() {
-
+		this.address.getEditor().getEditorComponent().addKeyListener(new KeyListener() {
+			
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
+				if((e.getKeyCode() >= KeyEvent.VK_0 && e.getKeyCode() <= KeyEvent.VK_9) || e.getKeyCode() == KeyEvent.VK_PERIOD)
+					LoginUI.this.IPString += e.getKeyChar();
+				if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE && LoginUI.this.IPString.length() > 0)
+					LoginUI.this.IPString = LoginUI.this.IPString.substring(0, LoginUI.this.IPString.length()-1);
+				updateIPList(LoginUI.this.IPString);
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e)
-			{
-			}
+			{}
 
 			@Override
 			public void keyTyped(KeyEvent e)
-			{
-			}
-			
+			{}
 		});
 		this.address.getEditor().getEditorComponent().addFocusListener(new FocusListener() {
 			
@@ -204,7 +216,6 @@ public class LoginUI extends JFrame {
 			{
 				LoginUI.this.address.setForeground(Color.BLACK);
 			}
-			
 		});
 		
 		// Creates a text field for the port number, validates the port number and connects to client on ENTER keypress
@@ -286,8 +297,7 @@ public class LoginUI extends JFrame {
 		this.username.setMaximumSize(this.username.getPreferredSize());
 		
 		this.address.setAlignmentX(Component.CENTER_ALIGNMENT);
-		this.address.setMaximumSize(new Dimension(350, 200));
-		this.address.setEditable(true);
+		this.address.setMaximumSize(new Dimension(370, 200));
 		
 		this.port.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.port.setMaximumSize(this.port.getPreferredSize());
@@ -304,6 +314,11 @@ public class LoginUI extends JFrame {
 			this.client.setCredentials(this.address.getSelectedItem().toString(), this.port.getText(), this.username.getText());
 			this.client.connectToServer();
 			this.window.dispose();
+			if(!addressList.contains(IPString))
+			{
+				addressList.add(IPString);
+				address.addItem(IPString);
+			}
 		}
 		catch (Exception err)
 		{
@@ -336,10 +351,64 @@ public class LoginUI extends JFrame {
 		return !port.matches("[0-9]+");
 	}
 	
-	/**/
-	private void initAddressList()
+	/*Initializes the address list with the previously used IP's stored in the ipFile*/
+	private void initIPList()
 	{
-		address.addItem("127.0.0.1");
-		address.addItem("128.211.195.131");
+		try 
+		{
+			reader = new BufferedReader(new FileReader(ipFile));
+			String inLine = "";
+			
+			while((inLine = reader.readLine()) != null)
+			{
+				addressList.add(inLine);
+				address.addItem(inLine);
+			}
+		} 
+		catch(FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if(reader != null)
+					reader.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		address.setSelectedItem("");
+	}
+	
+	/*Updates the IP list to the entered value and auto-completes through the previously used IPs*/
+	private void updateIPList(String ip)
+	{
+		address.showPopup();
+		filteredList.clear();
+		int numItems = address.getItemCount();
+		
+		// Removes all the IP data so that it can be filtered
+		for(int i = 1;i<numItems;i++)
+			address.removeItemAt(1);
+		address.setSelectedItem(ip.substring(0, ip.length()-1));
+		
+		// Determines which IP matches and stores it in filteredList
+		for(int i = 0;i < addressList.size();i++)
+		{
+			if(addressList.get(i).length() >= ip.length() && addressList.get(i).substring(0, ip.length()).equals(ip))
+				filteredList.add(addressList.get(i));
+		}
+		
+		// Repaints the filtered data onto the JComboBox
+		for(int i = 0;i < filteredList.size();i++)
+			address.addItem(filteredList.get(i));
 	}
 }
