@@ -8,10 +8,12 @@ import java.time.*;
 import java.time.format.*;
 import java.util.*;
 
+import javax.swing.*;
+
 public class BashTalkServer {
 	
 	private static final int PORT = 9898;
-	private static final String HASHED_PASSWORD = "4e1b5f481e0d36e5230b7a423a1c9a2418f4819737cdbb48ed2d79dc17c558ab";
+	private static String hashedPassword = "";
 	private static ArrayList<Client> clients = new ArrayList<Client>();
 	private static ArrayList<String> messageCache = new ArrayList<String>();
 	private static final int MAX_CLIENTS = 50;
@@ -29,6 +31,15 @@ public class BashTalkServer {
 		System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
 		System.out.println("External: " + HOST + "[" + PORT + "]");
 		System.out.println("");
+		
+		//Ask user to set admin password
+		String temp1, temp2;
+		do
+		{
+			temp1 = JOptionPane.showInputDialog(null, "Enter a password:");
+			temp2 = JOptionPane.showInputDialog(null, "Confirm password:");
+		}while(!temp1.equals(temp2));
+		hashedPassword = hashString(temp1);
 		
 		ServerSocket listener = new ServerSocket(PORT);
 		try
@@ -383,7 +394,7 @@ public class BashTalkServer {
 				
 				String[] segments = extractMessageSegments(this.in.readLine(), 0);
 				String password = segments[2];
-				return hashString(password).equals(HASHED_PASSWORD);
+				return hashString(password).equals(hashedPassword);
 				
 			}
 			catch (IOException e)
