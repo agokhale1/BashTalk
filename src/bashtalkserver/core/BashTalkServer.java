@@ -16,7 +16,7 @@ public class BashTalkServer {
 	private static ArrayList<String> messageCache = new ArrayList<String>();
 	private static final int MAX_CLIENTS = 50;
 	private static final int MAX_CACHE_SIZE = 100;
-	private static final String HELP_TEXT = "\nClear terminal: /clear\nExit terminal: /exit\nClear Cache (superuser): /clear_cache\nUsers online:/users\nPrivate Message: /pmsg <user> <message>\nMute: /mute\nUnmute: /unmute\nBan (superuser): /ban <user>";
+	private static final String HELP_TEXT = "\n\tClear terminal: /clear\n\tExit terminal: /exit\n\tClear Cache (superuser): /clear_cache\n\tUsers online: /users\n\tPrivate Message: /pmsg <user> <message>\n\tMute: /mute\n\tUnmute: /unmute\n\tBan (superuser): /ban <user>";
 	
 	public static void main(String[] args) throws Exception
 	{
@@ -145,6 +145,7 @@ public class BashTalkServer {
 					
 					// Get the message that is sent to the server
 					String msg = this.in.readLine();
+					
 					String command = extractMessageSegments(msg, 0)[3];
 					
 					if (!command.equals(""))
@@ -210,15 +211,11 @@ public class BashTalkServer {
 							// Return the list of users online
 							directMsg(getOnlineUsers());
 						else if (command.equals("/help"))
-						{
-							
 							// Prints all possible commands available
 							directMsg(HELP_TEXT);
-							
-						}
 						else if (this.muted)
 							serverMsg("You are currently muted.");
-						else if (msg.equals("/mute"))
+						else if (command.equals("/mute"))
 						{
 							
 							// Mute the specified user
@@ -328,12 +325,8 @@ public class BashTalkServer {
 							
 						}
 						else
-						{
-							
-							// Command not found. Send help text.
-							
-							directMsg("\nInvalid command \"" + command + "\"" + HELP_TEXT);
-						}
+							// Command not found; Send help text
+							directMsg("\tInvalid command: \"" + command + "\"\n" + HELP_TEXT);
 					}
 					else
 					{
@@ -344,6 +337,8 @@ public class BashTalkServer {
 							broadcastMsg(msg);
 							messageCache.add(msg);
 						}
+						else
+							serverMsg("You are currently muted.");
 						
 						// Remove the oldest message if cache is full
 						if (messageCache.size() > MAX_CACHE_SIZE)
