@@ -314,7 +314,6 @@ public class BashTalkServer {
 								
 								// Ban the user
 								clients.remove(c);
-								c.directMsg("An administrator banned you from the server.");
 								c.directMsg("banned"); // Trigger banned routine in client
 								
 								// Notify the group
