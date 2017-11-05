@@ -210,7 +210,7 @@ public abstract class BashTalkClient {
 			// User has been banned from the server
 			if (incoming.equals("banned"))
 			{
-				appendMessage("An administrator banned you from the server.");
+				alertMessage("An administrator banned you from the server.");
 				System.exit(0);
 			}
 			
