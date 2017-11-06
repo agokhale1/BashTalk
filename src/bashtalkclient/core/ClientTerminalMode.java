@@ -2,7 +2,6 @@ package bashtalkclient.core;
 
 import java.util.*;
 
-
 public class ClientTerminalMode extends BashTalkClient {
 	
 	private Scanner terminalIn;
@@ -25,10 +24,14 @@ public class ClientTerminalMode extends BashTalkClient {
 		while (true)
 		{
 			String msg = terminalIn.nextLine();
-			sendMessage(msg);
 			
 			if (msg.equals("/clear"))
+			{
 				clearOutput();
+				continue;
+			}
+			
+			sendMessage(msg);
 			
 			// Let thread die when exit is sent
 			if (msg.equals("/exit"))
@@ -59,7 +62,7 @@ public class ClientTerminalMode extends BashTalkClient {
 	
 	public void clearOutput()
 	{
-		if (System.getProperty("os.name").toLowerCase().indexOf("win") != -1) 
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") != -1)
 		{
 			// Clear command prompt
 			try
