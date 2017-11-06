@@ -23,8 +23,8 @@ public class BashTalkServer {
 		final String HOST = getExternalIp();
 		int clientNumber = 0;
 		
-		// Clear Linux terminal screen
-		System.out.print("\033[H\033[2J");
+		// Clear terminal or cmd screen
+		clearOutput();
 		System.out.println("-- BashTalk Server --");
 		System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
 		System.out.println("External: " + HOST + "[" + PORT + "]");
@@ -429,6 +429,29 @@ public class BashTalkServer {
 	private static void log(String msg)
 	{
 		System.out.println(getTimestamp() + " " + msg);
+	}
+	
+	/* Clear the terminal or cmd screen */
+	private static void clearOutput()
+	{
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") != -1) 
+		{
+			// Clear command prompt
+			try
+			{
+				new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+			}
+			catch (Exception err)
+			{
+				err.printStackTrace();
+				System.out.println("Error clearing screen. My bad.");
+			}
+		}
+		else
+		{
+			// Clear terminal
+			System.out.println("\\033[H\\033[2J");
+		}
 	}
 	
 	/* Send a message to all clients in the client pool. */
