@@ -193,12 +193,12 @@ public class ChatUI extends JFrame {
 					else if (this.flag)
 					{
 						// Sends the stored input value rather than the face value which are stars
-						ChatUI.this.client.sendMessage(ChatUI.this.username + this.pass);
+						ChatUI.this.client.sendMessage(this.pass);
 						this.flag = false;
 						this.pass = "";
 					}
 					else
-						ChatUI.this.client.sendMessage(ChatUI.this.username + ChatUI.this.input.getText());
+						ChatUI.this.client.sendMessage(ChatUI.this.input.getText());
 					
 					// Flags the process that the input needs to be password protected
 					if (ChatUI.this.input.getText().equals("/clear_cache") || ChatUI.this.input.getText().indexOf("/ban") != -1)

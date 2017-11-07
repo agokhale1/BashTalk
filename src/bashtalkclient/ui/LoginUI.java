@@ -42,10 +42,7 @@ public class LoginUI extends JFrame {
 	private JComboBox<String> address;
 	private JButton confirm, cancel;
 	
-	// Instance of the client
-	private BashTalkClient client;
-	
-	public LoginUI(BashTalkClient client)
+	public LoginUI()
 	{
 		// Calculates scaling unique to each screen resolution
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -54,7 +51,6 @@ public class LoginUI extends JFrame {
 		
 		// Initialize client and window
 		this.window = this;
-		this.client = client;
 		
 		// Sets up intial text and accessibility features
 		setTitle("Login");
@@ -311,41 +307,29 @@ public class LoginUI extends JFrame {
 	/* Attempts the connection between the client and server else throws its respective exception */
 	public void createConnection()
 	{
-		try
+		if (this.address.getSelectedItem().toString().equals("localhost"))
 		{
-			if (this.address.getSelectedItem().toString().equals("localhost"))
-			{
-				this.address.setSelectedItem("127.0.0.1");
-			}
-			this.client.setCredentials(this.address.getSelectedItem().toString(), this.port.getText(), this.username.getText());
-			this.client.connectToServer();
-			this.window.dispose();
-			if (!addressList.contains(address.getSelectedItem()))
-			{
-				addressList.add(IPString);
-				address.addItem(IPString);
-				try
-				{
-					writer = new BufferedWriter(new FileWriter(getClass().getClassLoader().getResource("ip_file.txt").getFile(), true));
-					writer.append(address.getSelectedItem() + "\n");
-					writer.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-			}
+			this.address.setSelectedItem("127.0.0.1");
 		}
-		catch (Exception err)
+		
+		// Create UI Client
+		new ClientUIMode(this.address.getSelectedItem().toString(), this.port.getText(), this.username.getText());
+		
+		this.window.dispose();
+		if (!addressList.contains(address.getSelectedItem()))
 		{
-			String message = "";
-			if (err.getMessage().indexOf("refused") != -1)
-				message = "Connection refused: Please try again later!";
-			else if (err.getMessage().indexOf("reset") != -1)
-				message = "Connection reset: The server closed the connection!";
-			else
-				message = "Connection timed out: Please enter the correct IP and Port";
-			JOptionPane.showMessageDialog(this.window, message, "Connection Error", JOptionPane.ERROR_MESSAGE);
+			addressList.add(IPString);
+			address.addItem(IPString);
+			try
+			{
+				writer = new BufferedWriter(new FileWriter(getClass().getClassLoader().getResource("ip_file.txt").getFile(), true));
+				writer.append(address.getSelectedItem() + "\n");
+				writer.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 	
