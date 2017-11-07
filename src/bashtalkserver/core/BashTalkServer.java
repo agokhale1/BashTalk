@@ -172,6 +172,11 @@ public class BashTalkServer {
 					// Get the message that is sent to the server
 					String msg = this.in.readLine();
 					
+					// Handle empty message with no formatting, since reload speed can exceed KeyListener refresh speed
+					if (msg.equals(""))
+					{
+						msg = "[" + DateTimeFormatter.ofPattern("HH:mm").format(LocalDateTime.now()) + "] <" + this.getUsername() + "> " + msg;
+					}
 					String command = extractMessageSegments(msg, 0)[3];
 					
 					if (!command.equals(""))
@@ -455,7 +460,7 @@ public class BashTalkServer {
 	/* Clear the terminal or cmd screen */
 	private static void clearOutput()
 	{
-		if (System.getProperty("os.name").toLowerCase().indexOf("win") != -1) 
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") != -1)
 		{
 			// Clear command prompt
 			try
