@@ -1,5 +1,6 @@
 package bashtalkserver.core;
 
+import java.awt.*;
 import java.io.*;
 import java.math.*;
 import java.net.*;
@@ -8,10 +9,12 @@ import java.time.*;
 import java.time.format.*;
 import java.util.*;
 
+import javax.swing.*;
+
 public class BashTalkServer {
 	
 	private static final int PORT = 9898;
-	private static final String HASHED_PASSWORD = "4e1b5f481e0d36e5230b7a423a1c9a2418f4819737cdbb48ed2d79dc17c558ab";
+	private static String hashedPassword = "";
 	private static ArrayList<Client> clients = new ArrayList<Client>();
 	private static ArrayList<String> messageCache = new ArrayList<String>();
 	private static final int MAX_CLIENTS = 50;
@@ -29,6 +32,18 @@ public class BashTalkServer {
 		System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
 		System.out.println("External: " + HOST + "[" + PORT + "]");
 		System.out.println("");
+		
+		// Ask user to set admin password
+		setUIHints();
+		String temp1, temp2;
+		do
+		{
+			temp1 = JOptionPane.showInputDialog(null, "Enter a password:");
+			temp2 = JOptionPane.showInputDialog(null, "Confirm password:");
+		} while (!temp1.equals(temp2));
+		hashedPassword = hashString(temp1);
+		// Notifies the user that the server has started
+		JOptionPane.showMessageDialog(null, "The BashTalk Server has started!");
 		
 		ServerSocket listener = new ServerSocket(PORT);
 		try
@@ -52,6 +67,17 @@ public class BashTalkServer {
 			broadcastMsg("shutdown");
 			listener.close();
 		}
+	}
+	
+	/* Set the UI to the correct font based on the scale and the resolution */
+	private static void setUIHints()
+	{
+		// Calculates scaling unique to each screen resolution
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		int scale = (gd.getDisplayMode().getHeight() + gd.getDisplayMode().getWidth()) / 200;
+		
+		UIManager.put("OptionPane.messageFont", new Font("Consolas", Font.PLAIN, (int) (scale * 1.5)));
+		UIManager.put("OptionPane.buttonFont", new Font("Consolas", Font.BOLD, (int) (scale * 1.5)));
 	}
 	
 	public static class Client extends Thread {
@@ -382,7 +408,7 @@ public class BashTalkServer {
 				
 				String[] segments = extractMessageSegments(this.in.readLine(), 0);
 				String password = segments[2];
-				return hashString(password).equals(HASHED_PASSWORD);
+				return hashString(password).equals(hashedPassword);
 				
 			}
 			catch (IOException e)
