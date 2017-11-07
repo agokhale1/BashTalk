@@ -172,11 +172,10 @@ public class BashTalkServer {
 					// Get the message that is sent to the server
 					String msg = this.in.readLine();
 					
-					// Handle empty message with no formatting, since reload speed can exceed KeyListener refresh speed
+					// Ignore empty message with no formatting, since reload speed can exceed KeyListener refresh speed
 					if (msg.equals(""))
-					{
-						msg = "[" + DateTimeFormatter.ofPattern("HH:mm").format(LocalDateTime.now()) + "] <" + this.getUsername() + "> " + msg;
-					}
+						continue;
+
 					String command = extractMessageSegments(msg, 0)[3];
 					
 					if (!command.equals(""))
