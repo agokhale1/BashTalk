@@ -1,5 +1,6 @@
 package bashtalkserver.core;
 
+import java.awt.*;
 import java.io.*;
 import java.math.*;
 import java.net.*;
@@ -32,14 +33,17 @@ public class BashTalkServer {
 		System.out.println("External: " + HOST + "[" + PORT + "]");
 		System.out.println("");
 		
-		//Ask user to set admin password
+		// Ask user to set admin password
+		setUIHints();
 		String temp1, temp2;
 		do
 		{
 			temp1 = JOptionPane.showInputDialog(null, "Enter a password:");
 			temp2 = JOptionPane.showInputDialog(null, "Confirm password:");
-		}while(!temp1.equals(temp2));
+		} while (!temp1.equals(temp2));
 		hashedPassword = hashString(temp1);
+		// Notifies the user that the server has started
+		JOptionPane.showMessageDialog(null, "The BashTalk Server has started!");
 		
 		ServerSocket listener = new ServerSocket(PORT);
 		try
@@ -63,6 +67,17 @@ public class BashTalkServer {
 			broadcastMsg("shutdown");
 			listener.close();
 		}
+	}
+	
+	/* Set the UI to the correct font based on the scale and the resolution */
+	private static void setUIHints()
+	{
+		// Calculates scaling unique to each screen resolution
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		int scale = (gd.getDisplayMode().getHeight() + gd.getDisplayMode().getWidth()) / 200;
+		
+		UIManager.put("OptionPane.messageFont", new Font("Consolas", Font.PLAIN, (int) (scale * 1.5)));
+		UIManager.put("OptionPane.buttonFont", new Font("Consolas", Font.BOLD, (int) (scale * 1.5)));
 	}
 	
 	public static class Client extends Thread {
