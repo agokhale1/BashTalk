@@ -25,7 +25,7 @@ public abstract class BashTalkClient {
 	protected BufferedReader inStream;
 	protected PrintWriter outStream;
 	
-	private boolean running = true;
+	protected boolean running = true;
 	
 	/**
 	 * Default constructor to initialize fields.
@@ -78,13 +78,13 @@ public abstract class BashTalkClient {
 			int port = input.nextInt();
 			
 			input.close();
-			return new ClientTerminalMode(host, port);
+			return new TerminalClient(host, port);
 			
 		}
 		else if (args.length == 2 && args[0].equals("-t")) // User provided IP address but not port (uses default port: 9898)
-			return new ClientTerminalMode(args[1], DEFAULT_PORT);
+			return new TerminalClient(args[1], DEFAULT_PORT);
 		else if (args.length == 3 && args[0].equals("-t")) // User provided both the IP address and port
-			return new ClientTerminalMode(args[1], Integer.parseInt(args[2]));
+			return new TerminalClient(args[1], Integer.parseInt(args[2]));
 		else
 		{
 			
@@ -138,7 +138,6 @@ public abstract class BashTalkClient {
 				// Wait for valid username response
 				response = inStream.readLine();
 				
-				// Username has been accepted and server join is successful
 				if (response.equals("Username approved. Welcome."))
 				{
 					
@@ -146,7 +145,6 @@ public abstract class BashTalkClient {
 					displayMessage(response);
 					displayMessage("");
 					
-					// Receive all cached messages
 					while (!response.equals("-- End of Message History --"))
 					{
 						
@@ -176,7 +174,6 @@ public abstract class BashTalkClient {
 				
 			}
 			
-			// Generates a new thread so that the client can simultaneously listen to incoming messages
 			new Thread("ListenMessage") {
 				
 				@Override
@@ -196,7 +193,6 @@ public abstract class BashTalkClient {
 				
 			}.start();
 			
-			// Generate a new thread so that the client can simultaneously listen for local input from the user
 			new Thread("ListenLocalInput") {
 				
 				@Override
