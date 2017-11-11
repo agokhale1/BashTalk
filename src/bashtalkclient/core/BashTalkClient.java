@@ -6,103 +6,156 @@ import java.time.*;
 import java.time.format.*;
 import java.util.*;
 
-import bashtalkclient.ui.*;
-
+/**
+ * Abstract implementation of the BashTalk client.
+ * 
+ * @version 1.0.0
+ */
 public abstract class BashTalkClient {
+	
+	protected static final String DEFAULT_HOST = "127.0.0.1";
+	protected static final int DEFAULT_PORT = 9898;
 	
 	protected String host;
 	protected int port;
-	protected String username;
 	protected Socket socket;
-	protected BufferedReader in;
-	protected PrintWriter out;
 	
-	/*
+	protected String username;
+	
+	protected BufferedReader inStream;
+	protected PrintWriter outStream;
+	
+	private boolean running = true;
+	
+	/**
 	 * Default constructor to initialize fields.
-	 * Uses localhost, port 9898, and a blank username.
-	 * 
+	 * Uses localhost (127.0.0.1), port 9898, and a blank username.
 	 */
 	public BashTalkClient()
 	{
-		this("127.0.0.1", "9898", "");
+		this(DEFAULT_HOST, DEFAULT_PORT, "");
 	}
 	
-	/*
-	 * Constructor to initialize fields
+	/**
+	 * Constructor to initialize fields.
 	 * 
+	 * @param host
+	 *            - IP address of server
+	 * @param port
+	 *            - Port of server
+	 * @param username
+	 *            - Username of client
 	 */
-	public BashTalkClient(String host, String port, String username)
+	public BashTalkClient(String host, int port, String username)
 	{
 		this.host = host;
-		this.port = Integer.parseInt(port);
+		this.port = port;
 		this.username = username;
 	}
 	
-	/*
-	 * Connect to the server
+	/**
+	 * Parse the command line arguments to determine whether the user wants
+	 * to connect using a terminal or the GUI.
 	 * 
+	 * @param args
+	 *            - JVM arguments
+	 * @return BashTalkClient instance
 	 */
-	public void connectToServer()
+	public static BashTalkClient parseArgs(String[] args)
+	{
+		
+		if (args.length == 0)
+			return new ClientUIMode();
+		
+		if (args.length == 1 && args[0].equals("-t")) // User has provided neither IP address nor port (prompts user for IP address and port)
+		{
+			
+			Scanner input = new Scanner(System.in);
+			
+			System.out.print("Enter the server's IP address: ");
+			String host = input.nextLine();
+			System.out.print("Enter the server's port: ");
+			int port = input.nextInt();
+			
+			input.close();
+			return new ClientTerminalMode(host, port);
+			
+		}
+		else if (args.length == 2 && args[0].equals("-t")) // User provided IP address but not port (uses default port: 9898)
+			return new ClientTerminalMode(args[1], DEFAULT_PORT);
+		else if (args.length == 3 && args[0].equals("-t")) // User provided both the IP address and port
+			return new ClientTerminalMode(args[1], Integer.parseInt(args[2]));
+		else
+		{
+			
+			System.out.println("Usage: -t [ip] [port]");
+			Runtime.getRuntime().exit(-1);
+			
+		}
+		return null;
+	}
+	
+	/**
+	 * Connect to the server using the given host and port.
+	 * The connection times out after 2.5 seconds.
+	 */
+	public void connect()
 	{
 		
 		try
 		{
-			// Create socket and set timeout to 2.5 seconds
-			this.socket = new Socket();
-			this.socket.connect(new InetSocketAddress(this.host, this.port), 2500);
 			
-			// Create buffers for sending and receiving data from the server
-			this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-			this.out = new PrintWriter(this.socket.getOutputStream(), true);
+			socket = new Socket();
+			socket.connect(new InetSocketAddress(host, port), 2500);
+			
+			inStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			outStream = new PrintWriter(socket.getOutputStream(), true);
 			
 			// Checks for username validity and prints cached message history
-			while (true)
+			while (running)
 			{
 				
-				// Clear screen between username prompts
 				clearOutput();
 				
 				// Username prompt or max clients reached warning
-				String response = this.in.readLine();
+				String response = inStream.readLine();
 				
 				// Server cannot accept any more clients
 				if (response.equals("Maximum number of clients reached."))
 				{
 					alertMessage("Maximum number of clients reached. Please try again later.");
-					this.in.close();
-					this.out.close();
-					this.socket.close();
-					System.exit(0);
+					disconnect();
 				}
 				
 				// Use received instructions from the server to prompt the user for a username
 				// if they don't already have one
-				if (this.username.equals(""))
-					this.username = getInput(response);
+				if (username.equals(""))
+					username = getLocalInput(response);
 				
 				// Send username to server
-				this.out.println(this.username);
+				outStream.println(username);
 				
 				// Wait for valid username response
-				response = this.in.readLine();
+				response = inStream.readLine();
 				
 				// Username has been accepted and server join is successful
 				if (response.equals("Username approved. Welcome."))
 				{
-					// Clear terminal
+					
 					clearOutput();
-					appendMessage(response);
-					appendMessage("");
+					displayMessage(response);
+					displayMessage("");
 					
 					// Receive all cached messages
 					while (!response.equals("-- End of Message History --"))
 					{
-						// Receive each message and append to terminal
-						response = this.in.readLine();
-						appendMessage(response);
+						
+						response = inStream.readLine();
+						displayMessage(response);
+						
 					}
 					
-					appendMessage("");
+					displayMessage("");
 					
 					// Break out of username error trap
 					break;
@@ -114,22 +167,22 @@ public abstract class BashTalkClient {
 					// Show invalid username error from server
 					alertMessage(response);
 					
-					// Request new username
-					this.username = getInput("Please enter a valid username: ");
+					username = getLocalInput("Please enter a valid username: ");
 					
-					// User hit cancel or did not type anything
-					if (this.username == null || this.username.length() == 0)
-						System.exit(0);
+					if (username == null || username.length() == 0)
+						disconnect();
+					
 				}
+				
 			}
 			
-			// Generates a new thread so that the client can simultaneously listen to
-			// incoming messages
-			new Thread() {
+			// Generates a new thread so that the client can simultaneously listen to incoming messages
+			new Thread("ListenMessage") {
 				
 				@Override
 				public void run()
 				{
+					
 					try
 					{
 						listenMessage();
@@ -138,15 +191,18 @@ public abstract class BashTalkClient {
 					{
 						alertMessage("Error listening to messages!");
 					}
+					
 				}
+				
 			}.start();
 			
 			// Generate a new thread so that the client can simultaneously listen for local input from the user
-			new Thread() {
+			new Thread("ListenLocalInput") {
 				
 				@Override
 				public void run()
 				{
+					
 					try
 					{
 						listenLocalInput();
@@ -155,11 +211,15 @@ public abstract class BashTalkClient {
 					{
 						alertMessage("Error listening for local input!");
 					}
+					
 				}
+				
 			}.start();
+			
 		}
-		catch (Exception err)
+		catch (Exception err) // TODO: Handle error (output to file?)
 		{
+			
 			String message = "";
 			if (err.getMessage().indexOf("refused") != -1)
 				message = "Connection refused: Please try again later!";
@@ -168,129 +228,131 @@ public abstract class BashTalkClient {
 			else if (err.getMessage().indexOf("timed") != -1)
 				message = "Connection timed out: Please enter the correct IP and Port";
 			else
-				message = "Opps... Should have handled errors better.";
+				message = "Oops... Should have handled errors better.";
 			
 			alertMessage(message);
+			
 		}
+		
 	}
 	
-	/*
-	 * Send the message to the server.
+	/**
+	 * Disconnects from the server and kills the client.
+	 */
+	public void disconnect()
+	{
+		
+		try
+		{
+			
+			running = false;
+			
+			inStream.close();
+			outStream.flush();
+			outStream.close();
+			socket.close();
+			
+			displayMessage("Disconnected from server.");
+			Runtime.getRuntime().exit(0);
+			
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * Relays formatted message to server.
 	 * 
+	 * @param msg
+	 *            - Message to be sent to the server
 	 */
 	public void sendMessage(String msg)
 	{
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
-		LocalDateTime now = LocalDateTime.now();
 		
-		this.out.println("[" + dtf.format(now) + "] <" + username + "> " + msg);
+		outStream.println("[" + dtf.format(LocalDateTime.now()) + "] <" + username + "> " + msg);
 	}
 	
-	/*
+	/**
 	 * Listens to all messages from the server and print them to local client.
-	 * 
 	 */
-	public void listenMessage() throws IOException
+	public void listenMessage()
 	{
-		// Listen for messages and append to display
-		while (true)
+		
+		while (running)
 		{
-			// Wait for a message
-			String incoming = this.in.readLine();
 			
-			// Server has closed socket
-			if (incoming == null)
+			String incoming = null;
+			try
 			{
-				// Clear terminal and exit
-				clearOutput();
-				System.exit(0);
-				break;
+				incoming = inStream.readLine();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
 			}
 			
-			// User has been banned from the server
-			if (incoming.equals("banned"))
+			if (incoming == null)
+				disconnect();
+			else if (incoming.equals("shutdown"))
+			{
+				alertMessage("Server is shutting down...");
+				disconnect();
+			}
+			else if (incoming.equals("banned"))
 			{
 				alertMessage("An administrator banned you from the server.");
-				System.exit(0);
+				disconnect();
 			}
-			
-			// Append the message to the terminal
-			appendMessage(incoming);
-		}
-	}
-	
-	/*
-	 * Begin listening for local input
-	 * 
-	 */
-	abstract void listenLocalInput();
-	
-	/*
-	 * Get text from the user via whatever input the child class is using.
-	 * 
-	 */
-	abstract String getInput(String prompt);
-	
-	/*
-	 * Add standard text to whatever output the child class is using.
-	 * 
-	 */
-	abstract void appendMessage(String msg);
-	
-	/*
-	 * Send alert to whatever output the child class is using.
-	 */
-	abstract void alertMessage(String alert);
-	
-	/*
-	 * Clears whatever output the child class is using.
-	 * 
-	 */
-	abstract void clearOutput();
-	
-	/*
-	 * Runs the client system
-	 * 
-	 */
-	public static void main(String[] args) throws Exception
-	{
-		
-		if (args.length > 0)
-		{
-			// Handle arguments and create a Terminal Mode client if needed
-			if (args[0].equals("-t") && args.length == 1)
-			{
-				// Did not already provide address and port
-				Scanner terminalIn = new Scanner(System.in);
-				
-				System.out.print("Enter the server's IP address: ");
-				String host = terminalIn.nextLine();
-				System.out.print("Enter the server's port: ");
-				String port = terminalIn.nextLine();
-				
-				terminalIn.close();
-				
-				new ClientTerminalMode(host, port);
-			}
-			else if (args[0].equals("-t") && args.length == 2)
-				// User provided address
-				// Connect using default port
-				new ClientTerminalMode(args[1], "9898");
-			else if (args[0].equals("-t") && args.length == 3)
-				// User provided port and address
-				new ClientTerminalMode(args[1], args[2]);
 			else
-			{
-				// Invalid arguments
-				System.out.println("Usage: -t <ip> <port>");
-				System.exit(0);
-			}
+				displayMessage(incoming);
+			
 		}
-		else
-		{
-			// Create a UI Mode client
-			LoginUI login = new LoginUI();
-			login.setVisible(true);
-		}
+		
 	}
+	
+	/**
+	 * Listen for input from the client.
+	 */
+	protected abstract void listenLocalInput();
+	
+	/**
+	 * Get input from the client.
+	 * 
+	 * @param prompt
+	 *            - Prompt message displayed to user
+	 * @return User's response
+	 */
+	protected abstract String getLocalInput(String prompt);
+	
+	/**
+	 * Show text in the implemented output of the client class.
+	 * 
+	 * @param msg
+	 *            - Text to be shown in the client
+	 */
+	protected abstract void displayMessage(String msg);
+	
+	/**
+	 * Display alert message in the implemented error output of the client class.
+	 * 
+	 * @param alert
+	 *            - Alert message to be shown to user
+	 * @deprecated
+	 */
+	protected abstract void alertMessage(String alert);
+	
+	/**
+	 * Clears the output defined in the client class.
+	 */
+	protected abstract void clearOutput();
+	
+	public static void main(String[] args)
+	{
+		parseArgs(args);
+	}
+	
 }
