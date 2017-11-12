@@ -65,7 +65,7 @@ public abstract class BashTalkClient {
 	{
 		
 		if (args.length == 0)
-			return new ClientUIMode();
+			return new GUIClient();
 		
 		if (args.length == 1 && args[0].equals("-t")) // User has provided neither IP address nor port (prompts user for IP address and port)
 		{
