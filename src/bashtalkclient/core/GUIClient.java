@@ -19,13 +19,14 @@ public class GUIClient extends BashTalkClient {
 	public GUIClient()
 	{
 		
+		GUIClient instance = this;
 		EventQueue.invokeLater(new Runnable() {
 			
 			@Override
 			public void run()
 			{
 				
-				loginUI = new LoginUI(this);
+				loginUI = new LoginUI(instance, chatUI);
 				loginUI.setVisible(true);
 				
 			}
@@ -36,8 +37,7 @@ public class GUIClient extends BashTalkClient {
 	
 	/**
 	 * Sets the BashTalk client's IP address, port, and requested username
-	 * from the input provided in the login GUI and then connects to the
-	 * server.
+	 * from the input provided in the login GUI.
 	 * 
 	 * @param host - IP address of server
 	 * @param port - Port of server
@@ -49,8 +49,6 @@ public class GUIClient extends BashTalkClient {
 		this.host = host;
 		this.port = port;
 		this.username = username;
-		
-		connect();
 		
 	}
 	
