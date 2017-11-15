@@ -73,6 +73,8 @@ public class BashTalkServer {
 				System.out.print("Confirm password: ");
 				temp2 = in.nextLine();
 				
+				in.close();
+				
 			}
 			
 			if (!temp1.equals(temp2))
