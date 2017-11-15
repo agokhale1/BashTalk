@@ -23,27 +23,81 @@ public class BashTalkServer {
 	
 	public static void main(String[] args) throws Exception
 	{
+		
 		final String HOST = getExternalIp();
 		int clientNumber = 0;
+		boolean useTerminal = false;
 		
-		// Clear terminal or cmd screen
-		clearOutput();
-		System.out.println("-- BashTalk Server --");
-		System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
-		System.out.println("External: " + HOST + "[" + PORT + "]");
-		System.out.println("");
+		// Set terminal flag if -t argument is present
+		if (args.length > 0)
+			if (args[0].equals("-t"))
+				useTerminal = true;
+			else
+			{
+				System.out.println("Valid options: -t");
+				System.exit(0);
+			}
 		
 		// Ask user to set admin password
-		setUIHints();
+		if (!useTerminal)
+			setUIHints();
+		
 		String temp1, temp2;
 		do
 		{
-			temp1 = JOptionPane.showInputDialog(null, "Enter a password:");
-			temp2 = JOptionPane.showInputDialog(null, "Confirm password:");
+			
+			if (!useTerminal)
+			{
+				
+				temp1 = JOptionPane.showInputDialog(null, "Enter new administrator password:");
+				
+				// User hit cancel
+				if (temp1 == null)
+					System.exit(0);
+				
+				temp2 = JOptionPane.showInputDialog(null, "Confirm password:");
+				
+				// User hit cancel
+				if (temp2 == null)
+					System.exit(0);
+				
+			}
+			else
+			{
+				
+				Scanner in = new Scanner(System.in);
+				
+				System.out.print("Enter new administrator password: ");
+				temp1 = in.nextLine();
+				
+				System.out.print("Confirm password: ");
+				temp2 = in.nextLine();
+				
+			}
+			
+			if (!temp1.equals(temp2))
+				if (!useTerminal)
+					JOptionPane.showMessageDialog(null, "Passwords did not match. Please try again.");
+				else
+					System.out.println("Passwords did not match. Please try again.");
+				
 		} while (!temp1.equals(temp2));
+		
+		// Store user password
 		hashedPassword = hashString(temp1);
-		// Notifies the user that the server has started
-		JOptionPane.showMessageDialog(null, "The BashTalk Server has started!");
+		
+		// Notify the user that the server has started
+		if (!useTerminal)
+			JOptionPane.showMessageDialog(null, "The BashTalk Server has started!");
+		else
+		{
+			// Clear terminal or cmd screen
+			clearOutput();
+			System.out.println("-- BashTalk Server --");
+			System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
+			System.out.println("External: " + HOST + "[" + PORT + "]");
+			System.out.println("");
+		}
 		
 		ServerSocket listener = new ServerSocket(PORT);
 		try
@@ -175,7 +229,7 @@ public class BashTalkServer {
 					// Ignore empty message with no formatting, since reload speed can exceed KeyListener refresh speed
 					if (msg.equals(""))
 						continue;
-
+					
 					String command = extractMessageSegments(msg, 0)[3];
 					
 					if (!command.equals(""))
