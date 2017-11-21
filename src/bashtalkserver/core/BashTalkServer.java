@@ -11,30 +11,72 @@ import java.util.*;
 
 import javax.swing.*;
 
+/**
+ * Implementation of BashTalkServer with both terminal and GUI capabilities.
+ * 
+ * @version 1.0.0
+ */
 public class BashTalkServer {
 	
-	private static final int PORT = 9898;
-	private static String hashedPassword = "";
-	private static ArrayList<Client> clients = new ArrayList<Client>();
-	private static ArrayList<String> messageCache = new ArrayList<String>();
-	private static final int MAX_CLIENTS = 50;
-	private static final int MAX_CACHE_SIZE = 100;
-	private static final String HELP_TEXT = "\n\tClear terminal: /clear\n\tExit terminal: /exit\n\tClear Cache (superuser): /clear_cache\n\tUsers online: /users\n\tPrivate Message: /pmsg <user> <message>\n\tMute: /mute\n\tUnmute: /unmute\n\tBan (superuser): /ban <user>";
+	private static final int DEFAULT_PORT = 9898;
 	
-	public static void main(String[] args) throws Exception
+	private String host;
+	private int port;
+	private int clientNumber;
+	private String hashedPassword;
+	private ArrayList<Client> clients;
+	private ArrayList<String> messageCache;
+	private final int MAX_CLIENTS = 50;
+	private final int MAX_CACHE_SIZE = 100;
+	private final String HELP_TEXT = "\n\tClear terminal: /clear"
+									+ "\n\tExit terminal: /exit"
+									+ "\n\tClear Cache (superuser): /clear_cache"
+									+ "\n\tUsers online: /users"
+									+ "\n\tPrivate Message: /pmsg <user> <message>"
+									+ "\n\tMute: /mute\n\tUnmute: /unmute"
+									+ "\n\tBan (superuser): /ban <user>";
+	
+	/**
+	 * Construct BashTalkServer object with given port and password.
+	 * 
+	 * @param port - Port on which to listen for connections
+	 * @param plainTxtPassword - Administrator password for server
+	 */
+	public BashTalkServer(int port, String plainTxtPassword)
 	{
-		final String HOST = getExternalIp();
-		int clientNumber = 0;
+		this.port = port;
+		this.hashedPassword = hashString(plainTxtPassword);
 		
-		// Clear terminal or cmd screen
+		host = getExternalIp();
+		clients = new ArrayList<Client>();
+		messageCache = new ArrayList<String>();
+		
+		clientNumber = 0;
+	}
+	
+	/**
+	 * Construct BashTalkServer object with default port and empty string password.
+	 */
+	public BashTalkServer() 
+	{
+		this(DEFAULT_PORT, "");
+	}
+	
+	/**
+	 * Starts the BashTalkServer.
+	 */
+	public void startServer()
+	{
+		
 		clearOutput();
 		System.out.println("-- BashTalk Server --");
-		System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
-		System.out.println("External: " + HOST + "[" + PORT + "]");
+		System.out.println("Local: " + getLocalIp() + "[" + port + "]");
+		System.out.println("External: " + host + "[" + port + "]");
 		System.out.println("");
 		
-		// Ask user to set admin password
 		setUIHints();
+		
+		// Prompt user to enter a password for server.
 		String temp1, temp2;
 		do
 		{
@@ -45,7 +87,7 @@ public class BashTalkServer {
 		// Notifies the user that the server has started
 		JOptionPane.showMessageDialog(null, "The BashTalk Server has started!");
 		
-		ServerSocket listener = new ServerSocket(PORT);
+		ServerSocket listener = new ServerSocket(port);
 		try
 		{
 			while (true)
@@ -69,7 +111,9 @@ public class BashTalkServer {
 		}
 	}
 	
-	/* Set the UI to the correct font based on the scale and the resolution */
+	/**
+	 *  Set the UI to the correct font based on the scale and the resolution 
+	 */
 	private static void setUIHints()
 	{
 		// Calculates scaling unique to each screen resolution
@@ -80,6 +124,9 @@ public class BashTalkServer {
 		UIManager.put("OptionPane.buttonFont", new Font("Consolas", Font.BOLD, (int) (scale * 1.5)));
 	}
 	
+	/**
+	 *  Client class used to store information for and communicate with each client that connects to the server.
+	 */
 	public static class Client extends Thread {
 		
 		public int clientNumber;
@@ -96,19 +143,31 @@ public class BashTalkServer {
 			this.muted = false;
 		}
 		
-		/* Returns the username of this client */
+		/**
+		 *  Returns the username of this client.
+		 *  
+		 *  @return Username of client
+		 */
 		public String getUsername()
 		{
 			return this.username;
 		}
 		
-		/* Returns the mute status of this client */
+		/** 
+		 * Returns the mute status of this client.
+		 * 
+		 * @return Mute status of client (true: muted / false: unmuted)
+		 */
 		public boolean getMuted()
 		{
 			return this.muted;
 		}
 		
-		/* Sets the mute status of this client */
+		/**
+		 *  Sets the mute status of this client.
+		 *  
+		 *  @param state - Mute status of client (true: muted / false: unmuted)
+		 */
 		public void setMuted(boolean state)
 		{
 			this.muted = state;
@@ -387,19 +446,31 @@ public class BashTalkServer {
 			}
 		}
 		
-		/* Send a message to only this client. */
+		/**
+		 *  Send a message to only this client. 
+		 *  
+		 *  @param msg - Message to be sent
+		 */
 		public void directMsg(String msg)
 		{
 			this.out.println(msg);
 		}
 		
-		/* Send a message with server formatting to only this client. */
+		/**
+		 *  Send a message with server formatting to only this client.
+		 *  
+		 *  @param msg - Message to be sent
+		 */
 		private void serverMsg(String msg)
 		{
 			directMsg(getTimestamp() + " <# server #> " + msg);
 		}
 		
-		/* Prompt user for password, hash reply, and check against stored hash */
+		/**
+		 *  Prompt user for password, hash reply, and check against stored hash.
+		 *  
+		 *  @return Passed (true) or failed (false) authentication
+		 */
 		private boolean promptAndValidatePassword()
 		{
 			
@@ -426,9 +497,10 @@ public class BashTalkServer {
 			
 		}
 		
-		/*
-		 * Close the connection to this client. Optionally notify all users that the
-		 * client has left the server.
+		/**
+		 * Close the connection to this client. Optionally notify all users that the client has left the server.
+		 * 
+		 * @param notify - Option to notify all other clients
 		 */
 		private void close(boolean notify)
 		{
@@ -450,13 +522,17 @@ public class BashTalkServer {
 		
 	}
 	
-	/* Log a message to the server's screen */
+	/**
+	 *  Log a message to the server's screen 
+	 */
 	private static void log(String msg)
 	{
 		System.out.println(getTimestamp() + " " + msg);
 	}
 	
-	/* Clear the terminal or cmd screen */
+	/**
+	 *  Clear the terminal or cmd screen 
+	 */
 	private static void clearOutput()
 	{
 		if (System.getProperty("os.name").toLowerCase().indexOf("win") != -1)
@@ -493,7 +569,11 @@ public class BashTalkServer {
 			}
 	}
 	
-	/* Return a list of users currently logged in */
+	/**
+	 *  Get a formatted string of online users.
+	 *  
+	 *  @return List of online users
+	 */
 	private static String getOnlineUsers()
 	{
 		String users = "\nOnline Users: [";
@@ -503,7 +583,12 @@ public class BashTalkServer {
 		return users;
 	}
 	
-	/* Return the client with the specified username */
+	/**
+	 *  Return the client with the specified username.
+	 *   
+	 *  @param username - username of desired client
+	 *  @return Client object with the specified name
+	 */
 	private static Client getClient(String username)
 	{
 		for (Client c : clients)
@@ -514,7 +599,12 @@ public class BashTalkServer {
 		return null;
 	}
 	
-	/* Hash a string using SHA-256. */
+	/**
+	 *  Hash a string using SHA-256. 
+	 * 
+	 *  @param str - String to be hashed
+	 *  @return Hashed string
+	 */
 	private static String hashString(String str)
 	{
 		try
@@ -530,7 +620,11 @@ public class BashTalkServer {
 		}
 	}
 	
-	/* Return a timestamp of form [HH:mm]. */
+	/**
+	 *  Create a timestamp in [HH:mm] form.
+	 *  
+	 *  @return String Timestamp in [HH:mm] form
+	 */
 	private static String getTimestamp()
 	{
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
@@ -619,7 +713,11 @@ public class BashTalkServer {
 		return fSegments;
 	}
 	
-	/* Get the local IP of the host device */
+	/**
+	 * Get the local IP of the host device.
+	 * 
+	 * @return Local IP of host device
+	 */
 	public static String getLocalIp()
 	{
 		try
@@ -636,15 +734,41 @@ public class BashTalkServer {
 		}
 	}
 	
-	/* Get the external IP of the host device. */
-	public static String getExternalIp() throws Exception
+	/**
+	 *  Get the external IP of the host device. 
+	 *  
+	 *  @return External IP of host device
+	 */
+	public static String getExternalIp()
 	{
-		URL AWSCheck = new URL("http://checkip.amazonaws.com");
+		URL AWSCheck = null;
+		try
+		{
+			AWSCheck = new URL("http://checkip.amazonaws.com");
+		}
+		catch (MalformedURLException e1)
+		{
+			e1.printStackTrace();
+		}
 		BufferedReader in = null;
 		try
 		{
-			in = new BufferedReader(new InputStreamReader(AWSCheck.openStream()));
-			return in.readLine();
+			try
+			{
+				in = new BufferedReader(new InputStreamReader(AWSCheck.openStream()));
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			try
+			{
+				return in.readLine();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		finally
 		{
@@ -658,5 +782,6 @@ public class BashTalkServer {
 					e.printStackTrace();
 				}
 		}
+		return null;
 	}
 }
