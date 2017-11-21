@@ -56,30 +56,22 @@ public class BashTalkServer {
 	}
 	
 	/**
+	 * Construct BashTalkServer object with useTerminal option.
+	 * 
+	 * @param useTerminal - Option to use terminal or GUI (true: terminal / false: GUI)
+	 */
+	public BashTalkServer(boolean useTerminal)
+	{
+		this(DEFAULT_PORT, "");
+		this.useTerminal = useTerminal;
+	}
+	
+	/**
 	 * Construct BashTalkServer object with default port and empty string password.
 	 */
 	public BashTalkServer() 
 	{
 		this(DEFAULT_PORT, "");
-	}
-	
-	/**
-	 * Parse command line arguments.
-	 */
-	public void parseArgs(String[] args)
-	{
-		
-		if (args.length > 0)
-			if (args[0].equals("-t"))
-				useTerminal = true;
-			else
-			{
-				System.out.println("Valid options: -t");
-				System.exit(0);
-			}
-		else
-			useTerminal = false;
-		
 	}
 	
 	/**
@@ -154,14 +146,16 @@ public class BashTalkServer {
 			// Clear terminal or cmd screen
 			clearOutput();
 			System.out.println("-- BashTalk Server --");
-			System.out.println("Local: " + getLocalIp() + "[" + PORT + "]");
-			System.out.println("External: " + HOST + "[" + PORT + "]");
+			System.out.println("Local: " + getLocalIp() + "[" + port + "]");
+			System.out.println("External: " + host + "[" + port + "]");
 			System.out.println("");
 		}
 		
-		ServerSocket listener = new ServerSocket(port);
+		ServerSocket listener = null;
 		try
 		{
+			listener = new ServerSocket(port);
+			
 			while (true)
 				if (clients.size() < MAX_CLIENTS)
 				{
@@ -176,10 +170,21 @@ public class BashTalkServer {
 					// Client closes self
 				}
 		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		finally
 		{
 			broadcastMsg("shutdown");
-			listener.close();
+			try
+			{
+				listener.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -199,7 +204,7 @@ public class BashTalkServer {
 	/**
 	 *  Client class used to store information for and communicate with each client that connects to the server.
 	 */
-	public static class Client extends Thread {
+	public class Client extends Thread {
 		
 		public int clientNumber;
 		public String username;
@@ -597,7 +602,7 @@ public class BashTalkServer {
 	/**
 	 *  Log a message to the server's screen 
 	 */
-	private static void log(String msg)
+	private void log(String msg)
 	{
 		System.out.println(getTimestamp() + " " + msg);
 	}
@@ -605,7 +610,7 @@ public class BashTalkServer {
 	/**
 	 *  Clear the terminal or cmd screen 
 	 */
-	private static void clearOutput()
+	private void clearOutput()
 	{
 		if (System.getProperty("os.name").toLowerCase().indexOf("win") != -1)
 		{
@@ -628,7 +633,7 @@ public class BashTalkServer {
 	}
 	
 	/* Send a message to all clients in the client pool. */
-	private static void broadcastMsg(String msg)
+	private void broadcastMsg(String msg)
 	{
 		for (Client client : clients)
 			try
@@ -646,7 +651,7 @@ public class BashTalkServer {
 	 *  
 	 *  @return List of online users
 	 */
-	private static String getOnlineUsers()
+	private String getOnlineUsers()
 	{
 		String users = "\nOnline Users: [";
 		for (Client c : clients)
@@ -661,7 +666,7 @@ public class BashTalkServer {
 	 *  @param username - username of desired client
 	 *  @return Client object with the specified name
 	 */
-	private static Client getClient(String username)
+	private Client getClient(String username)
 	{
 		for (Client c : clients)
 			if (username.equals(c.getUsername()))
@@ -677,7 +682,7 @@ public class BashTalkServer {
 	 *  @param str - String to be hashed
 	 *  @return Hashed string
 	 */
-	private static String hashString(String str)
+	private String hashString(String str)
 	{
 		try
 		{
@@ -697,7 +702,7 @@ public class BashTalkServer {
 	 *  
 	 *  @return String Timestamp in [HH:mm] form
 	 */
-	private static String getTimestamp()
+	private String getTimestamp()
 	{
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
 		LocalDateTime now = LocalDateTime.now();
@@ -722,7 +727,7 @@ public class BashTalkServer {
 	 * the first position.
 	 * 
 	 */
-	private static String[] extractMessageSegments(String msg, int numberOfArgs)
+	private String[] extractMessageSegments(String msg, int numberOfArgs)
 	{
 		
 		final int MIN_LEN = 3; // Minimum number of positions required for a message
@@ -790,7 +795,7 @@ public class BashTalkServer {
 	 * 
 	 * @return Local IP of host device
 	 */
-	public static String getLocalIp()
+	public String getLocalIp()
 	{
 		try
 		{
@@ -811,7 +816,7 @@ public class BashTalkServer {
 	 *  
 	 *  @return External IP of host device
 	 */
-	public static String getExternalIp()
+	public String getExternalIp()
 	{
 		URL AWSCheck = null;
 		try
@@ -855,5 +860,38 @@ public class BashTalkServer {
 				}
 		}
 		return null;
+	}
+	
+	/**
+	 * Parse command line arguments.
+	 * 
+	 * @param args - Command line arguments
+	 */
+	public static BashTalkServer parseArgs(String[] args)
+	{
+		
+		if (args.length > 0)
+			if (args[0].equals("-t"))
+				return new BashTalkServer(true);
+			else
+			{
+				System.out.println("Valid options: -t");
+				System.exit(0);
+				return null;
+			}
+		else
+			return new BashTalkServer(false);
+		
+	}
+	
+	/**
+	 * Parse command line args and start the BashTalkServer.
+	 * 
+	 * @param args - Command line arguments
+	 */
+	public static void main(String[] args)
+	{
+		BashTalkServer server = parseArgs(args);
+		server.startServer();
 	}
 }
