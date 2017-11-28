@@ -15,11 +15,11 @@
 <setting id="cleanup.make_private_fields_final" value="true"/>
 <setting id="cleanup.use_lambda" value="true"/>
 <setting id="cleanup.always_use_blocks" value="false"/>
-<setting id="cleanup.use_this_for_non_static_field_access_only_if_necessary" value="false"/>
+<setting id="cleanup.use_this_for_non_static_field_access_only_if_necessary" value="true"/>
 <setting id="cleanup.sort_members_all" value="false"/>
 <setting id="cleanup.remove_trailing_whitespaces_all" value="false"/>
 <setting id="cleanup.add_missing_annotations" value="true"/>
-<setting id="cleanup.always_use_this_for_non_static_field_access" value="true"/>
+<setting id="cleanup.always_use_this_for_non_static_field_access" value="false"/>
 <setting id="cleanup.make_parameters_final" value="false"/>
 <setting id="cleanup.sort_members" value="false"/>
 <setting id="cleanup.remove_private_constructors" value="true"/>
