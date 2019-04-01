@@ -17,7 +17,9 @@ public class ClientUIMode extends BashTalkClient {
 		
 		chatWindow = new ChatUI(this.username, this);
 		chatWindow.setVisible(true);
+		
 		connectToServer();
+		chatWindow.updateUsername(this.username);
 	}
 	
 	public void setChatWindow(ChatUI chatWindow)
@@ -52,6 +54,5 @@ public class ClientUIMode extends BashTalkClient {
 	protected void clearOutput()
 	{
 		chatWindow.clear();
-		
 	}
 }

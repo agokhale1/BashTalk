@@ -15,7 +15,7 @@ public class ChatUI extends JFrame {
 
 	private static final long serialVersionUID = 3246415652860859900L;
 
-	// Initialize final variabless
+	// Initialize final variables
 	private static final int WIDTH = 89;
 	private static final int HEIGHT = 49;
 
@@ -90,12 +90,12 @@ public class ChatUI extends JFrame {
 	private void initComponents()
 	{
 		// Creates the program icon and sets it to the JFrame
-		// ArrayList<Image> iconImgs = new ArrayList<Image>();
+		ArrayList<Image> iconImgs = new ArrayList<Image>();
 
-		// for(int i = 512; i >= 16; i /= 2)
-		// 	iconImgs.add(new ImageIcon(getClass().getResource("/icon_" + i + "x" + i + ".png")).getImage());
+		for(int i = 512; i >= 16; i /= 2)
+			iconImgs.add(new ImageIcon("resources/icon_" + i + "x" + i + ".png").getImage());
 
-		// setIconImages(iconImgs);
+		setIconImages(iconImgs);
 
 		// Creates a panel for the whole JFrame
 		this.contentPane = new JPanel();
@@ -146,6 +146,13 @@ public class ChatUI extends JFrame {
 		this.contentPane.add(tpan, "Center");
 		this.contentPane.add(this.inputPanel, "South");
 
+	}
+	
+	/* Update the username for the UI */
+	public void updateUsername(String usrname)
+	{
+		this.username = "<" + usrname + "> ";
+		this.tag.setText(this.username);
 	}
 
 	/* Appends the provided message to the terminal screen */
@@ -226,10 +233,12 @@ public class ChatUI extends JFrame {
 				if (this.flag && lastChar != -1)
 				{
 					if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
-						this.pass = this.pass.substring(0, lastChar - 1);
-					else
+						this.pass = this.pass.substring(0, lastChar);
+					else if(input.getText().length() > this.pass.length())
+					{
 						this.pass += ChatUI.this.input.getText().charAt(lastChar);
-					ChatUI.this.input.setText(ChatUI.this.input.getText().substring(0, lastChar) + "*");
+						ChatUI.this.input.setText(ChatUI.this.input.getText().substring(0, lastChar) + "*");
+					}
 				}
 			}
 		});
@@ -250,7 +259,7 @@ public class ChatUI extends JFrame {
 			setBlinkRate(500);
 			try
 			{
-				this.img = new ImageIcon(ChatUI.class.getResource("/cursor.png")).getImage();
+				this.img = new ImageIcon("resources/cursor.png").getImage();
 			}
 			catch (Exception e)
 			{

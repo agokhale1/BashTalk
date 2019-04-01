@@ -31,6 +31,7 @@ public class LoginUI extends JFrame {
 	// File that stores the list of previously entered IPs
 	// private File ipFile = new File(getClass().getClassLoader().getResource("ip_file.txt").getFile());
 	//private File ipFile = new File(getClass().getClassLoader().getResource("/resources/ip_file.txt").getFile());
+	// TODO: Figure out the getResource route because this might not work in jar files
 	private File ipFile = new File("resources/ip_file.txt");
 	private BufferedReader reader = null;
 	private BufferedWriter writer = null;
@@ -124,12 +125,12 @@ public class LoginUI extends JFrame {
 	private void initComponents()
 	{
 		// Creates the program icon and sets it to the JFrame
-		//ArrayList<Image> iconImgs = new ArrayList<Image>();
+		ArrayList<Image> iconImgs = new ArrayList<Image>();
 
-//		for (int i = 512; i >= 16; i /= 2)
-//			iconImgs.add(new ImageIcon(getClass().getResource("/icon_" + i + "x" + i + ".png")).getImage());
+		for (int i = 512; i >= 16; i /= 2)
+			iconImgs.add(new ImageIcon("resources/icon_" + i + "x" + i + ".png").getImage());
 
-		//setIconImages(iconImgs);
+		setIconImages(iconImgs);
 
 		// Creates a panel for the whole JFrame
 		this.contentPane = new JPanel();

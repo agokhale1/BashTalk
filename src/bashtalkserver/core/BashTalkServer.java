@@ -302,12 +302,14 @@ public class BashTalkServer {
 				// Wait for messages from client
 				while (true)
 				{
+					if(in == null)
+						System.out.println("Dickhead!");
 					
 					// Get the message that is sent to the server
 					String msg = in.readLine();
 					
 					// Ignore empty message with no formatting, since reload speed can exceed KeyListener refresh speed
-					if (msg.equals(""))
+					if (msg == null || msg.equals(""))
 						continue;
 					
 					String command = extractMessageSegments(msg, 0)[3];
