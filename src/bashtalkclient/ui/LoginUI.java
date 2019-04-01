@@ -8,6 +8,8 @@ import java.util.regex.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
 
 import bashtalkclient.core.*;
 
@@ -34,6 +36,7 @@ public class LoginUI extends JFrame {
 	// Instantiate major JPanels and Windows
 	private Window window;
 	private JPanel contentPane, btnPane;
+	private DocumentListener addressEvent;
 	
 	// Instantiate JComponents
 	private Font font;
@@ -174,26 +177,57 @@ public class LoginUI extends JFrame {
 		this.address = new JComboBox<String>();
 		this.address.setEditable(true);
 		this.address.setFont(this.font);
-		this.address.getEditor().getEditorComponent().addKeyListener(new KeyListener() {
-			
+		addressEvent = new DocumentListener()
+		{
+			boolean inInit = false;
+			boolean rmInit = false;
 			@Override
-			public void keyPressed(KeyEvent e)
+			public void changedUpdate(DocumentEvent arg0)
+			{}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0)
 			{
-				if ((e.getKeyCode() >= KeyEvent.VK_0 && e.getKeyCode() <= KeyEvent.VK_9) || e.getKeyCode() == KeyEvent.VK_PERIOD || (e.getKeyChar() >= 'a' && e.getKeyChar() <= 'z'))
-					LoginUI.this.IPString += e.getKeyChar();
-				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && LoginUI.this.IPString.length() > 0)
-					LoginUI.this.IPString = LoginUI.this.IPString.substring(0, LoginUI.this.IPString.length() - 1);
-				updateIPList(LoginUI.this.IPString);
+				if(inInit)
+				{
+					//System.out.println("this "+address.getEditor().getItem().toString());
+					//updateIPList();
+					SwingUtilities.invokeLater(new Runnable() {
+	
+						@Override
+						public void run()
+						{
+							System.out.println("this "+address.getEditor().getItem().toString());
+							updateIPList();
+						}
+						
+					});
+				}
+				inInit = true;
 			}
-			
+
 			@Override
-			public void keyReleased(KeyEvent e)
-			{}
-			
-			@Override
-			public void keyTyped(KeyEvent e)
-			{}
-		});
+			public void removeUpdate(DocumentEvent arg0)
+			{
+				if(rmInit)
+				{
+					//System.out.println("that "+address.getEditor().getItem().toString());
+					//updateIPList();
+				
+					SwingUtilities.invokeLater(new Runnable() {
+	
+						@Override
+						public void run()
+						{
+							System.out.println("that "+address.getEditor().getItem().toString());
+							updateIPList();
+						}
+					});
+				}
+				rmInit = true;
+			}
+		};
+		((JTextField)this.address.getEditor().getEditorComponent()).getDocument().addDocumentListener(addressEvent);
 		this.address.getEditor().getEditorComponent().addFocusListener(new FocusListener() {
 			
 			@Override
@@ -389,26 +423,38 @@ public class LoginUI extends JFrame {
 	}
 	
 	/* Updates the IP list to the entered value and auto-completes through the previously used IPs */
-	private void updateIPList(String ip)
+	private void updateIPList()
 	{
-		address.showPopup();
+		// Disables document listener so that address ComboBox can be altered
+		((JTextField)this.address.getEditor().getEditorComponent()).getDocument().removeDocumentListener(addressEvent);
+		
+		address.hidePopup();
 		filteredList.clear();
+		
 		int numItems = address.getItemCount();
-		System.out.println(ip);
+		String typed = address.getEditor().getItem().toString();
+		
 		// Removes all the IP data so that it can be filtered
 		for (int i = 0; i < numItems; i++)
 			address.removeItemAt(0);
-		address.setSelectedItem(ip.substring(0, ip.length() - 1));
+		address.setSelectedItem(typed);
 		
 		// Determines which IP matches and stores it in filteredList
-		for (int i = 0; i < addressList.size(); i++)
+		for(String addr : addressList)
 		{
-			if (addressList.get(i).length() >= ip.length() && addressList.get(i).substring(0, ip.length()).equals(ip))
-				filteredList.add(addressList.get(i));
+			if(addr.length() >= typed.length() && addr.substring(0, typed.length()).equals(typed))
+				filteredList.add(addr);
 		}
 		
 		// Repaints the filtered data onto the JComboBox
-		for (int i = 0; i < filteredList.size(); i++)
-			address.addItem(filteredList.get(i));
+		for(String filter : filteredList)
+		{
+			address.addItem(filter);
+		}
+		
+		address.showPopup();
+		
+		// Re-enables document listener so that it can listen for user changes and input
+		((JTextField)this.address.getEditor().getEditorComponent()).getDocument().addDocumentListener(addressEvent);
 	}
 }
