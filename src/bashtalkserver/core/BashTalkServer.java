@@ -83,8 +83,6 @@ public class BashTalkServer {
 		System.out.println("External: " + host + "[" + port + "]");
 		System.out.println("");
 		
-		setUIHints();
-		
 		// Prompt user to set admin password
 		if (!useTerminal)
 			setUIHints();
@@ -119,8 +117,6 @@ public class BashTalkServer {
 				
 				System.out.print("Confirm password: ");
 				temp2 = in.nextLine();
-				
-				in.close();
 				
 			}
 			
