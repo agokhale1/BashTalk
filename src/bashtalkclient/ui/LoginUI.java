@@ -3,6 +3,7 @@ package bashtalkclient.ui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.regex.*;
 
@@ -29,7 +30,8 @@ public class LoginUI extends JFrame {
 
 	// File that stores the list of previously entered IPs
 	// private File ipFile = new File(getClass().getClassLoader().getResource("ip_file.txt").getFile());
-	//private File ipFile = new File(getClass().getClassLoader().getResource("ip_file.txt").getFile());
+	//private File ipFile = new File(getClass().getClassLoader().getResource("/resources/ip_file.txt").getFile());
+	private File ipFile = new File("resources/ip_file.txt");
 	private BufferedReader reader = null;
 	private BufferedWriter writer = null;
 
@@ -101,7 +103,7 @@ public class LoginUI extends JFrame {
 		this.contentPane.add(this.btnPane);
 
 		// Adds the values to the comboBox
-		//initIPList();
+		initIPList();
 	}
 
 	/* Sets the resolution of the UI */
@@ -350,21 +352,21 @@ public class LoginUI extends JFrame {
 		new ClientUIMode(this.address.getSelectedItem().toString(), this.port.getText(), this.username.getText());
 
 		this.window.dispose();
-		// if (!addressList.contains(address.getSelectedItem()))
-		// {
-		// 	addressList.add(IPString);
-		// 	address.addItem(IPString);
-		// 	try
-		// 	{
-		// 		writer = new BufferedWriter(new FileWriter(getClass().getClassLoader().getResource("ip_file.txt").getFile(), true));
-		// 		writer.append(address.getSelectedItem() + "\n");
-		// 		writer.close();
-		// 	}
-		// 	catch (IOException e)
-		// 	{
-		// 		e.printStackTrace();
-		// 	}
-		// }
+		if (!addressList.contains(address.getSelectedItem()))
+		{
+			addressList.add(IPString);
+			address.addItem(IPString);
+			try
+			{
+				writer = new BufferedWriter(new FileWriter("resources/ip_file.txt", true));
+				writer.append(address.getSelectedItem() + "\n");
+				writer.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/* Validates the IP Address to its correct format */
@@ -388,37 +390,37 @@ public class LoginUI extends JFrame {
 	/* Initializes the address list with the previously used IP's stored in the ipFile */
 	private void initIPList()
 	{
-//		try
-//		{
-//			reader = new BufferedReader(new FileReader(ipFile));
-//			String inLine = "";
-//
-//			while ((inLine = reader.readLine()) != null)
-//			{
-//				addressList.add(inLine);
-//				address.addItem(inLine);
-//			}
-//		}
-//		catch (FileNotFoundException e)
-//		{
-//			e.printStackTrace();
-//		}
-//		catch (IOException e)
-//		{
-//			e.printStackTrace();
-//		}
-//		finally
-//		{
-//			try
-//			{
-//				if (reader != null)
-//					reader.close();
-//			}
-//			catch (Exception e)
-//			{
-//				e.printStackTrace();
-//			}
-//		}
+		try
+		{
+			reader = new BufferedReader(new FileReader(ipFile));
+			String inLine = "";
+
+			while ((inLine = reader.readLine()) != null)
+			{
+				addressList.add(inLine);
+				address.addItem(inLine);
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (reader != null)
+					reader.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
 		address.setSelectedItem("");
 	}
 
